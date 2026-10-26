@@ -59,4 +59,4 @@ Rotation is not automated. Update both ends of a credential and restart/recreate
 
 ## Future development
 
-Notifications, additional monitors and broader live evaluation. Meterless investigation and hypothesis evaluation are implemented; see [AI integration](10-ai-investigation.md). Begin changes in this checkout, preserve tests and update implementation status. Do not present planned capabilities as working features.
+Broader provider validation, incident correlation and production hardening. Multiple monitors, host administration, roles and opt-in connectors now exist; see [console guide](11-console-and-administration.md). Meterless investigation and hypothesis evaluation are implemented; see [AI integration](10-ai-investigation.md). Begin changes in this checkout, preserve tests and update implementation status. Do not present planned capabilities as working features.

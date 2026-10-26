@@ -34,7 +34,7 @@ Each application retains its technical README, scripts and tests. Planning files
 
 Real host telemetry; synthetic voice/SMS/data mediation; durable collector spool; authenticated ingestion; independent PostgreSQL storage; a read-only Zetaris datasource; a configurable monitor; charts; and an alert lifecycle with acknowledgement and automatic recovery verification.
 
-AI investigation now retrieves evidence through Zetaris and uses a persistent minimal World Model implementation with planner, investigator and evaluator calls through Nightshift. Reports retain citations, uncertainty and provider receipts. See the integration guide for boundaries and validation. Incident correlation, notifications and automatic remediation remain unimplemented. A resolved alert does not mean the platform performed a repair.
+AI investigation now retrieves evidence through Zetaris and uses a persistent minimal World Model implementation with planner, investigator and evaluator calls through Nightshift. Reports retain citations, uncertainty and provider receipts. See the integration guide for boundaries and validation. Incident correlation and automatic remediation remain unimplemented. Password login, three roles, host enrollment, multiple monitors, ticket links and opt-in connectors are implemented; see [console administration](docs/11-console-and-administration.md). A resolved alert does not mean the platform performed a repair.
 
 ## Excluded material
 

@@ -78,3 +78,7 @@ Resolution means the condition became healthy again. The platform does not enabl
 ## AI investigation
 
 World Model organizes entities, declared dependencies and source-linked evidence. Nightshift executes bounded planning, investigation and critique. The worker runs independently of the browser, reports failures explicitly and performs no remediation. See [AI integration](10-ai-investigation.md) for the implemented subset, budget and trace contract.
+
+## Console control plane
+
+The receiver also serves password authentication, HttpOnly sessions and API-enforced admin/manager/operator roles. PostgreSQL stores user password hashes, hashed user/host tokens, registered hosts/clients, ticket services, audit actions and encrypted connector configuration. The monitor evaluates latest observations per host through Zetaris. Notification events enter a durable outbox in the alert transaction; a separate worker delivers only to enabled connectors. No external connector is configured by installation. See [console administration](11-console-and-administration.md).

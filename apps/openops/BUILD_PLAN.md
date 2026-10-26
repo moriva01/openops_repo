@@ -24,7 +24,7 @@ Machine names and IDs are neutral deployment examples: telemediation-01 / tmc-la
 
 World Model persistence, Nightshift generation, bounded investigation, citation validation and critique are implemented. A real historical incident was analyzed with NVIDIA receipts.
 
-1. Add webhook delivery, retries and delivery history.
+1. Validate actual configured email/SMS providers; webhook/local HTTP delivery, retries and history are implemented.
 2. Expand live evaluation to distractors and insufficient evidence; measure outcomes rather than inventing improvements.
 3. Complete clean-setup verification, demo video, slides and submission.
 

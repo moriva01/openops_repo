@@ -12,7 +12,8 @@ import uuid
 import psycopg
 from psycopg.types.json import Jsonb
 from psycopg.rows import dict_row
-from receiver import monitoring, investigation
+from receiver import monitoring, investigation, access, notifications
+from http.cookies import SimpleCookie
 
 LOCK = threading.Lock()
 SCHEMA = """
@@ -39,6 +40,9 @@ def initialize():
         db.execute(SCHEMA)
         monitoring.initialize(db)
         investigation.initialize(db)
+        access.initialize(db)
+        notifications.initialize(db)
+        db.execute("UPDATE monitors SET host_id=%s WHERE host_id IS NULL",(os.environ.get('OPENOPS_HOST_ID','tmc-lab-01'),))
 
 
 def log(action, **fields):
@@ -53,7 +57,7 @@ class EventConflict(Exception):
     pass
 
 
-def validate(batch):
+def validate(batch, allowed_host=None):
     if not isinstance(batch, dict) or batch.get("schema") != "openops.batch.v1":
         raise ValueError("Expected openops.batch.v1")
     events = batch.get("events")
@@ -67,7 +71,7 @@ def validate(batch):
         if item["event_id"] != event_id or event_id in ids:
             raise ValueError("Event IDs must be unique canonical UUIDs within a batch")
         ids.add(event_id)
-        if item.get("host_id") != os.environ["OPENOPS_HOST_ID"]:
+        if item.get("host_id") != (allowed_host or os.environ["OPENOPS_HOST_ID"]):
             raise ValueError("Host is not registered for this credential")
         if not isinstance(item.get("hostname"), str) or not 1 <= len(item["hostname"]) <= 253:
             raise ValueError("Invalid hostname")
@@ -114,144 +118,155 @@ def persist(events):
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "OpenOpsReceiver/0.1"
-
+    server_version='OpenOps/0.2'
     def setup(self):
-        super().setup()
-        self.connection.settimeout(10)
-
-    def log_message(self, *_):
-        pass
-
-    def reply(self, code, body):
-        raw = json.dumps(body, default=str, allow_nan=False).encode()
-        self.send_response(code)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(raw)))
-        self.send_header("Cache-Control", "no-store")
-        self.end_headers()
-        self.wfile.write(raw)
-
-    def authorized(self, env):
-        token = os.environ[env]
-        return hmac.compare_digest(self.headers.get("Authorization", "").encode(), ("Bearer " + token).encode())
-
-    def do_POST(self):
-        path = urlsplit(self.path).path
-        if path in ("/api/monitors/configure", "/api/alerts/acknowledge", "/api/investigations/start"):
-            if not self.authorized("OPENOPS_ADMIN_TOKEN"):
-                self.reply(403, {"error": "Operator credential required"})
-                return
-            try:
-                size = int(self.headers.get("Content-Length", "0"))
-                if not 0 < size <= 8192:
-                    raise ValueError("Invalid body size")
-                body = json.loads(self.rfile.read(size))
-                with connection() as db:
-                    db.row_factory = dict_row
-                    if path == "/api/investigations/start":
-                        run_id = investigation.enqueue(db,int(body["alert_id"]),body.get("retry") is True,body.get('new_run') is True)
-                    elif path.endswith("configure"):
-                        monitoring.configure(db, body)
-                    else:
-                        monitoring.acknowledge(db, int(body["id"]))
-                self.reply(200, {"status": "updated", **({"run_id":run_id} if path=="/api/investigations/start" else {})})
-            except (ValueError,TypeError,KeyError,OverflowError):
-                self.reply(400, {"error": "Invalid change; active alert conditions cannot be redefined"})
-            except psycopg.Error:
-                self.reply(503, {"error": "Storage unavailable"})
-            return
-        if not self.authorized("OPENOPS_INGEST_TOKEN"):
-            self.close_connection = True
-            self.reply(401, {"error": "Ingestion credential required"})
-            return
-        if urlsplit(self.path).path != "/api/ingest":
-            self.close_connection = True
-            self.reply(404, {"error": "Not found"})
-            return
+        super().setup();self.connection.settimeout(15)
+    def log_message(self,*_):pass
+    def reply(self,code,body,cookie=None):
+        raw=json.dumps(body,default=str,allow_nan=False).encode()
+        self.send_response(code);self.send_header('Content-Type','application/json');self.send_header('Content-Length',str(len(raw)))
+        self.send_header('Cache-Control','no-store');self.send_header('X-Content-Type-Options','nosniff')
+        if cookie:self.send_header('Set-Cookie',cookie)
+        self.end_headers();self.wfile.write(raw)
+    def bearer(self):
+        header=self.headers.get('Authorization','')
+        return header[7:] if header.startswith('Bearer ') else None
+    def session(self):
         try:
-            size = int(self.headers.get("Content-Length", "0"))
-            if not 0 < size <= 2 * 1024 * 1024:
-                self.close_connection = True
-                self.reply(413, {"error": "Batch size must be 1 byte..2 MiB"})
-                return
-            events = validate(json.loads(self.rfile.read(size)))
-            result = persist(events)
-            log("batch.committed", host_id=events[0]["host_id"], inserted=result["inserted"], duplicates=result["duplicates"])
-            self.reply(200, result)
-        except EventConflict:
-            self.reply(409, {"error": "Event ID conflicts with stored content; batch rolled back"})
-        except (ValueError, TypeError, KeyError, AttributeError, OverflowError, RecursionError):
-            self.reply(400, {"error": "Invalid telemetry batch"})
-        except psycopg.Error as error:
-            log("storage.error", error_type=type(error).__name__)
-            self.reply(503, {"error": "Storage unavailable; retain batch for retry"})
-        except (TimeoutError, OSError):
-            self.close_connection = True
-
+            cookie=SimpleCookie(self.headers.get('Cookie',''));return cookie['openops_session'].value if 'openops_session' in cookie else None
+        except Exception:return None
+    def identity(self,db):return access.principal(db,self.bearer(),self.session())
+    def read_body(self,max_size=65536):
+        size=int(self.headers.get('Content-Length','0'))
+        if not 0<size<=max_size:raise ValueError('Invalid request size')
+        if self.headers.get('Content-Type','').split(';')[0]!='application/json':raise ValueError('JSON content type required')
+        body=json.loads(self.rfile.read(size))
+        if not isinstance(body,dict):raise ValueError('JSON object required')
+        return body
+    def do_POST(self):
+        path=urlsplit(self.path).path
+        try:
+            if path=='/api/ingest':return self.ingest()
+            if self.headers.get('X-OpenOps-Request')!='1':raise PermissionError('Same-origin application header required')
+            origin=self.headers.get('Origin')
+            if origin and urlsplit(origin).netloc!=self.headers.get('Host'):raise PermissionError('Cross-origin request rejected')
+            body=self.read_body()
+            with connection() as db:
+                db.row_factory=dict_row
+                if path=='/api/login':
+                    result=access.login(db,body.get('username',''),body.get('password',''),self.client_address[0])
+                    if not result:
+                        self.reply(401,{'error':'Invalid credentials or temporarily locked account'});return
+                    token,user=result
+                    db.commit()
+                    self.reply(200,{'user':user},'openops_session='+token+'; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800');return
+                user=self.identity(db)
+                if not user:self.reply(401,{'error':'Login required'});return
+                if path=='/api/logout':
+                    if self.session():db.execute('DELETE FROM sessions WHERE digest=%s',(access.digest(self.session()),))
+                    access.audit(db,user['username'],'session.logout',{})
+                    result={};cookie='openops_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0'
+                elif path=='/api/account/password':
+                    encoded=db.execute('SELECT password_hash FROM users WHERE id=%s',(user['id'],)).fetchone()['password_hash']
+                    if not access.verify_password(body.get('current_password',''),encoded):raise ValueError('Current password is incorrect')
+                    db.execute('UPDATE users SET password_hash=%s WHERE id=%s',(access.password_hash(body.get('password')),user['id']))
+                    db.execute('DELETE FROM sessions WHERE user_id=%s',(user['id'],));access.audit(db,user['username'],'account.password_changed',{})
+                    result={'login_required':True};cookie='openops_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0'
+                elif path.startswith('/api/admin/'):
+                    result=access.change(db,user,path.rsplit('/',1)[1],body);cookie=None
+                elif path=='/api/monitors/configure':
+                    access.require(user,'manager');mid=monitoring.configure(db,body,user['username'])
+                    access.audit(db,user['username'],'monitor.'+body.get('action','save'),{'id':mid});result={'id':mid};cookie=None
+                elif path=='/api/alerts/acknowledge':
+                    access.require(user,'operator');monitoring.acknowledge(db,int(body['id']),body,user['username'])
+                    access.audit(db,user['username'],'alert.acknowledgement',{'id':int(body['id']),'acknowledged':body.get('acknowledged',True)})
+                    result={};cookie=None
+                elif path=='/api/investigations/start':
+                    access.require(user,'operator');run_id=investigation.enqueue(db,int(body['alert_id']),body.get('retry') is True,body.get('new_run') is True)
+                    access.audit(db,user['username'],'investigation.requested',{'run_id':run_id,'alert_id':int(body['alert_id'])});result={'run_id':run_id};cookie=None
+                else:self.reply(404,{'error':'Not found'});return
+            self.reply(200,{'status':'updated',**result},cookie)
+        except PermissionError as error:self.reply(403,{'error':str(error)})
+        except (ValueError,TypeError,KeyError,OverflowError,RecursionError,AttributeError) as error:self.reply(400,{'error':str(error)[:250]})
+        except psycopg.IntegrityError:self.reply(400,{'error':'Duplicate name or referenced record is still in use'})
+        except psycopg.Error:self.reply(503,{'error':'Storage unavailable'})
+        except (TimeoutError,OSError):self.close_connection=True
+    def ingest(self):
+        token=self.bearer()
+        if not token:self.reply(401,{'error':'Ingestion credential required'});return
+        allowed=None
+        with connection() as db:
+            db.row_factory=dict_row
+            host=db.execute('SELECT id FROM managed_hosts WHERE ingest_digest=%s AND enabled',(access.digest(token),)).fetchone()
+            if host:allowed=host['id']
+            elif hmac.compare_digest(token,os.environ['OPENOPS_INGEST_TOKEN']):
+                host=db.execute('SELECT id FROM managed_hosts WHERE id=%s AND enabled',(os.environ['OPENOPS_HOST_ID'],)).fetchone()
+                if host:allowed=host['id']
+        if not allowed:self.reply(401,{'error':'Invalid or disabled host ingestion credential'});return
+        try:
+            events=validate(self.read_body(2*1024*1024),allowed)
+            result=persist(events);log('batch.committed',inserted=result['inserted'],duplicates=result['duplicates'])
+            self.reply(200,result)
+        except EventConflict:self.reply(409,{'error':'Event ID conflicts with stored content; batch rolled back'})
     def do_GET(self):
-        path = urlsplit(self.path).path
-        if path == "/":
-            raw = Path("/app/receiver/index.html").read_bytes()
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.send_header("Content-Length", str(len(raw)))
-            self.end_headers()
-            self.wfile.write(raw)
-            return
-        if path in ("/health/live", "/health/ready"):
+        path=urlsplit(self.path).path;query=parse_qs(urlsplit(self.path).query)
+        if path in ('/','/console.css','/console.js','/admin.js'):
+            asset='index.html' if path=='/' else path[1:]
+            raw=(Path('/app/receiver')/asset).read_bytes();self.send_response(200)
+            self.send_header('Content-Type',('text/css' if path.endswith('.css') else 'application/javascript' if path.endswith('.js') else 'text/html')+'; charset=utf-8');self.send_header('Content-Length',str(len(raw)))
+            self.send_header('Cache-Control','no-store');self.send_header('X-Content-Type-Options','nosniff')
+            self.send_header('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'")
+            self.end_headers();self.wfile.write(raw);return
+        if path in ('/health/live','/health/ready'):
             try:
-                if path.endswith("ready"):
-                    with connection() as db:
-                        db.execute("SELECT 1 FROM receiver_schema").fetchone()
-                self.reply(200, {"status": "ok", "service": "openops-receiver"})
-            except psycopg.Error:
-                self.reply(503, {"status": "storage_unavailable"})
-            return
-        if not (self.authorized("OPENOPS_READ_TOKEN") or self.authorized("OPENOPS_ADMIN_TOKEN")):
-            self.reply(401, {"error": "Read credential required"})
+                if path.endswith('ready'):
+                    with connection() as db:db.execute('SELECT 1 FROM receiver_schema')
+                self.reply(200,{'status':'ok','service':'openops-receiver'})
+            except psycopg.Error:self.reply(503,{'status':'storage_unavailable'})
             return
         try:
             with connection() as db:
-                if path == "/api/dashboard":
-                    db.row_factory = dict_row
-                    result=monitoring.dashboard(db)
-                    result["investigations"]=db.execute("SELECT id,alert_id,status,attempts,created_at,finished_at,error_type FROM investigations ORDER BY created_at DESC LIMIT 30").fetchall()
-                    self.reply(200, result)
-                elif path.startswith("/api/investigations/"):
-                    db.row_factory=dict_row
-                    run_id=path.rsplit("/",1)[1]
-                    result=db.execute("SELECT * FROM investigations WHERE id=%s",(run_id,)).fetchone()
-                    if result:
-                        result["trace"]=db.execute("SELECT happened_at,action,detail FROM investigation_trace WHERE run_id=%s ORDER BY id",(run_id,)).fetchall()
-                    self.reply(200 if result else 404,result or {"error":"Unknown investigation"})
-                elif path.startswith("/api/world/"):
-                    db.row_factory=dict_row
-                    run_id=path.rsplit("/",1)[1]
-                    item=db.execute("SELECT a.opening_evidence,i.attempts,i.manifest FROM investigations i JOIN alerts a ON a.id=i.alert_id WHERE i.id=%s",(run_id,)).fetchone()
-                    if item:
-                        key=(item['manifest'] or {}).get('world_context_key',run_id+':attempt:'+str(item['attempts']))
-                        result=investigation.ContextBuilderService(investigation.WorldStoreService(db)).build(key,float(item["opening_evidence"]["observed_epoch"]))
-                        self.reply(200,result)
-                    else:self.reply(404,{"error":"Unknown investigation"})
-                elif path == "/api/hosts":
-                    rows = db.execute("""SELECT host_id, count(*) samples, max(observed_at) latest_observed_at,
-                        max(received_at) latest_received_at,
-                        extract(epoch FROM clock_timestamp()-max(observed_at)) observation_age_seconds
-                        FROM telemetry_events GROUP BY host_id ORDER BY host_id""").fetchall()
-                    self.reply(200, {"hosts": [dict(zip(("host_id", "samples", "latest_observed_at", "latest_received_at", "observation_age_seconds"), r)) for r in rows]})
-                elif path == "/api/events":
-                    limit = int(parse_qs(urlsplit(self.path).query).get("limit", ["20"])[0])
-                    if not 1 <= limit <= 100:
-                        raise ValueError()
-                    rows = db.execute("SELECT payload,received_at FROM telemetry_events ORDER BY observed_at DESC,event_id LIMIT %s", (limit,)).fetchall()
-                    self.reply(200, {"events": [{"telemetry": r[0], "received_at": r[1]} for r in rows]})
-                else:
-                    self.reply(404, {"error": "Not found"})
-        except (ValueError, TypeError):
-            self.reply(400, {"error": "Invalid query"})
-        except psycopg.Error:
-            self.reply(503, {"error": "Storage unavailable"})
+                db.row_factory=dict_row;user=self.identity(db)
+                legacy=self.bearer() and hmac.compare_digest(self.bearer(),os.environ['OPENOPS_READ_TOKEN'])
+                if not user and not (legacy and path in ('/api/hosts','/api/events')):self.reply(401,{'error':'Login required'});return
+                if path=='/api/me':result={'user':user}
+                elif path=='/api/admin':
+                    access.require(user,'admin');result=access.admin_data(db)
+                elif path=='/api/dashboard':
+                    host=query.get('host_id',[None])[0] or None
+                    result=monitoring.dashboard(db,host)
+                    logfile=Path(os.environ.get('OPENOPS_LOG_DIR','/app/logs'))/'receiver.jsonl'
+                    runtime=[]
+                    if logfile.exists():
+                        with logfile.open('rb') as stream:
+                            length=stream.seek(0,2);stream.seek(max(0,length-65536));lines=stream.read().decode(errors='replace').splitlines()
+                        for line in lines[1:] if length>65536 else lines:
+                            try:
+                                entry=json.loads(line);runtime.append({k:v for k,v in entry.items() if k in ('timestamp','action','source','status','error_type','inserted','duplicates')})
+                            except ValueError:pass
+                    result['runtime_logs']=runtime[-100:]
+                    result['investigations']=db.execute("SELECT i.id,i.alert_id,i.status,i.attempts,i.created_at,i.finished_at,i.error_type FROM investigations i JOIN alerts a ON a.id=i.alert_id JOIN monitors m ON m.id=a.monitor_id WHERE (%s::text IS NULL OR m.host_id=%s) ORDER BY i.created_at DESC LIMIT 50",(host,host)).fetchall()
+                elif path.startswith('/api/investigations/'):
+                    run_id=path.rsplit('/',1)[1];result=db.execute('SELECT * FROM investigations WHERE id=%s',(run_id,)).fetchone()
+                    if result:result['trace']=db.execute('SELECT happened_at,action,detail FROM investigation_trace WHERE run_id=%s ORDER BY id',(run_id,)).fetchall()
+                    else:self.reply(404,{'error':'Unknown investigation'});return
+                elif path.startswith('/api/world/'):
+                    run_id=path.rsplit('/',1)[1]
+                    item=db.execute('SELECT a.opening_evidence,i.attempts,i.manifest FROM investigations i JOIN alerts a ON a.id=i.alert_id WHERE i.id=%s',(run_id,)).fetchone()
+                    if not item:self.reply(404,{'error':'Unknown investigation'});return
+                    key=(item['manifest'] or {}).get('world_context_key',run_id+':attempt:'+str(item['attempts']))
+                    result=investigation.ContextBuilderService(investigation.WorldStoreService(db)).build(key,float(item['opening_evidence']['observed_epoch']))
+                elif path=='/api/hosts':
+                    result={'hosts':db.execute("SELECT host_id,count(*) samples,max(observed_at) latest_observed_at,max(received_at) latest_received_at,extract(epoch FROM clock_timestamp()-max(observed_at)) observation_age_seconds FROM telemetry_events GROUP BY host_id ORDER BY host_id").fetchall()}
+                elif path=='/api/events':
+                    limit=int(query.get('limit',['20'])[0])
+                    if not 1<=limit<=100:raise ValueError('Invalid limit')
+                    result={'events':[{'telemetry':r['payload'],'received_at':r['received_at']} for r in db.execute('SELECT payload,received_at FROM telemetry_events ORDER BY observed_at DESC,event_id LIMIT %s',(limit,)).fetchall()]}
+                else:self.reply(404,{'error':'Not found'});return
+            self.reply(200,result)
+        except PermissionError as error:self.reply(403,{'error':str(error)})
+        except (ValueError,TypeError):self.reply(400,{'error':'Invalid query'})
+        except psycopg.Error:self.reply(503,{'error':'Storage unavailable'})
 
 
 def main():
@@ -264,6 +279,7 @@ def main():
         threading.Thread(target=monitoring.loop,args=(connection,log),daemon=True).start()
     if os.environ.get("OPENOPS_INVESTIGATION_ENABLED", "false") == "true":
         threading.Thread(target=investigation.loop,args=(connection,log),daemon=True).start()
+    threading.Thread(target=notifications.loop,args=(connection,log),daemon=True).start()
     ThreadingHTTPServer(("0.0.0.0", int(os.environ.get("OPENOPS_PORT", "8096"))), Handler).serve_forever()
 
 

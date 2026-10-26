@@ -13,3 +13,5 @@ Validated on October 26, 2026 from `hackaton/openops_repo`:
 Initial consolidation did not move runtime state. During AI integration, the receiver was rebuilt from this checkout with existing credentials and volumes preserved. Tests do not replace a full clean Zetaris/Nightshift deployment; obtain those products separately.
 
 Generated packages in `apps/telemediation-convergent/dist/` are local outputs ignored by Git. Their source and builders allow regeneration.
+
+Console expansion passed 33 tests covering roles, sessions, user-owned credentials, host scope, severity changes, tickets and notification contracts. Browser smoke checks covered all five sections, existing reports, admin forms and responsive layouts. Only admin exists in the production user table.

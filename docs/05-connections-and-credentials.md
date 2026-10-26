@@ -6,8 +6,11 @@
 |---|---|---|---|
 | `TMC_API_TOKEN` | A: `/etc/telemediation-convergent/runtime.env` | Portal and local collector | Read/control lab application |
 | `COLLECTOR_INGEST_TOKEN` / `OPENOPS_INGEST_TOKEN` | A: `destination.env`; B: `.env` | Collector -> receiver | Submit telemetry for the registered host |
-| `OPENOPS_READ_TOKEN` | B: `.env` | Read clients | Hosts/events/dashboard |
-| `OPENOPS_ADMIN_TOKEN` | B: `.env`; private access note | Portal operator | Read, configure monitor, acknowledge alert |
+| `OPENOPS_READ_TOKEN` | B: `.env` | Legacy diagnostics | Hosts/events only |
+| `OPENOPS_ADMIN_TOKEN` | B: `.env` | Connector encryption | Internal encryption secret; no interactive access |
+| User password/session | Private initial note / HttpOnly cookie | Browser | Current user role |
+| User-owned API token | Shown once in Admin; digest in database | API clients | Owner role, expiring/revocable |
+| Host ingestion token | Shown once in Admin; digest in database | Additional collector | One registered host |
 | `OPENOPS_DB_PASSWORD` | B: `.env` | OpenOps containers | Application database; never send to A |
 | `OPENOPS_ZETARIS_DB_PASSWORD` | B: `.env` and provider datasource registration | Zetaris -> PostgreSQL | SELECT on `monitor_samples` |
 | Zetaris login | B: `.local/zetaris.env` | UI-proxy adapter | SQL through configured account |
@@ -17,7 +20,7 @@
 
 No real credentials belong in the repository. They are not interchangeable. A never needs model keys, the PostgreSQL password or Zetaris login.
 
-Read the TeleMediation token locally with `sudo cat /etc/telemediation-convergent/runtime.env` and copy only its value into the browser. For OpenOps, `python scripts/prepare_portal.py` generates a private access note without printing the token. Do not include these outputs in shared logs, screenshots or issues.
+Read the TeleMediation token locally with `sudo cat /etc/telemediation-convergent/runtime.env` and copy only its value into the browser. For OpenOps, `python scripts/prepare_portal.py` exports the private initial admin note after readiness. API credentials are issued and assigned to users in Admin. Do not include these outputs in shared logs, screenshots or issues.
 
 ## Connect A to B
 

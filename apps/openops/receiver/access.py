@@ -130,7 +130,9 @@ def change(db,user,resource,data):
         else:
             username=text(data.get('username'),80).lower()
             if not re.fullmatch(r'[a-z0-9._@-]+',username) or data.get('role') not in ROLES:raise ValueError('Invalid username or role')
-            ident=db.execute('INSERT INTO users(username,password_hash,role) VALUES(%s,%s,%s) RETURNING id',(username,password_hash(data.get('password')),data['role'])).fetchone()['id']
+            enabled=data.get('enabled',True)
+            if type(enabled) is not bool:raise ValueError('Invalid enabled setting')
+            ident=db.execute('INSERT INTO users(username,password_hash,role,enabled) VALUES(%s,%s,%s,%s) RETURNING id',(username,password_hash(data.get('password')),data['role'],enabled)).fetchone()['id']
     elif resource=='tokens':
         if action=='revoke':db.execute('UPDATE user_tokens SET revoked=true WHERE id=%s',(int(ident),))
         else:
@@ -138,9 +140,13 @@ def change(db,user,resource,data):
             if not owner:raise ValueError('Unknown or disabled user')
             days=int(data.get('days',30))
             if not 1<=days<=365:raise ValueError('Token lifetime must be 1..365 days')
-            token=secrets.token_urlsafe(40)
-            ident=db.execute("INSERT INTO user_tokens(name,digest,user_id,expires_at) VALUES(%s,%s,%s,now()+%s*interval '1 day') RETURNING id",(text(data['name']),digest(token),owner['id'],days)).fetchone()['id']
-            result['token']=token
+            if ident:
+                changed=db.execute("UPDATE user_tokens SET name=%s,user_id=%s,expires_at=now()+%s*interval '1 day' WHERE id=%s AND NOT revoked RETURNING id",(text(data['name']),owner['id'],days,int(ident))).fetchone()
+                if not changed:raise ValueError('Unknown or revoked token')
+            else:
+                token=secrets.token_urlsafe(40)
+                ident=db.execute("INSERT INTO user_tokens(name,digest,user_id,expires_at) VALUES(%s,%s,%s,now()+%s*interval '1 day') RETURNING id",(text(data['name']),digest(token),owner['id'],days)).fetchone()['id']
+                result['token']=token
     elif resource=='hosts':
         ident=text(data['id'],120)
         if not re.fullmatch(r'[a-zA-Z0-9._-]+',ident):raise ValueError('Use letters, numbers, dots, underscores or hyphens for host ID')
@@ -161,13 +167,17 @@ def change(db,user,resource,data):
     elif resource=='ticket_servers':
         if action=='delete':db.execute('UPDATE ticket_servers SET enabled=false WHERE id=%s',(int(ident),))
         elif ident:db.execute('UPDATE ticket_servers SET name=%s,url=%s,enabled=%s WHERE id=%s',(text(data['name']),url(data['url']),bool(data.get('enabled',True)),int(ident)))
-        else:ident=db.execute('INSERT INTO ticket_servers(name,url) VALUES(%s,%s) RETURNING id',(text(data['name']),url(data['url']))).fetchone()['id']
+        else:ident=db.execute('INSERT INTO ticket_servers(name,url,enabled) VALUES(%s,%s,%s) RETURNING id',(text(data['name']),url(data['url']),bool(data.get('enabled',True)))).fetchone()['id']
     elif resource=='connectors':
-        if action=='delete':db.execute('DELETE FROM connectors WHERE id=%s',(int(ident),))
+        if action=='delete':db.execute('UPDATE connectors SET enabled=false WHERE id=%s',(int(ident),))
         else:
             kind=data['kind'];config=data.get('config',{});enabled=data.get('enabled',False)
             if kind not in ('webhook','sms','email') or not isinstance(config,dict) or type(enabled) is not bool:raise ValueError('Invalid connector')
-            if kind in ('webhook','sms'):config['url']=url(config.get('url'))
+            allowed={'url','to'} if kind in ('webhook','sms') else {'host','port','username','from','to','starttls'}
+            if set(config)-allowed:raise ValueError('Unknown configuration key; put credentials in the secret field')
+            if kind in ('webhook','sms'):
+                config['url']=url(config.get('url'))
+                if kind=='sms':config['to']=text(config.get('to'),80)
             else:
                 for k in ('host','from','to'):config[k]=text(config.get(k),253)
                 config['port']=int(config.get('port',587))

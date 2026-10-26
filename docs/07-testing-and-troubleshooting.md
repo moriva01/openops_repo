@@ -16,7 +16,7 @@ From prepared `apps/openops` with containers running:
 docker compose exec -T receiver python -m unittest discover -s tests -v
 ```
 
-8 real-PostgreSQL tests cover ingestion/authentication, deduplication, conflict rollback, validation, sustained violations, acknowledgement, distinct recovery, stale/query failures, gaps and disabled monitors. Test data is isolated in temporary schemas, not injected into production telemetry.
+33 real-PostgreSQL and local-HTTP tests cover console permissions, sessions, tokens, host scope, severity changes, tickets, connector encryption/delivery and ingestion/authentication, deduplication, conflict rollback, validation, sustained violations, acknowledgement, distinct recovery, stale/query failures, gaps and disabled monitors. Test data is isolated in temporary schemas, not injected into production telemetry.
 
 ## Two-machine acceptance
 
@@ -70,7 +70,7 @@ Do not publish full `docker inspect` output: it includes environment settings. T
 | Provider bootstrap still running | Wait for initial dataset load; distinguish work in progress from a failed service |
 | :8095 unavailable | TMC_BIND, API service, A firewall, bridged address, or SSH tunnel |
 | API 401 | Correct application token and Bearer header |
-| OpenOps operation 403 | Operator token is required, not read/ingestion token |
+| OpenOps operation 403 | Check user role and X-OpenOps-Request header; ingestion credentials cannot operate the console |
 | Collector sent 0, destination false | Missing destination/drop-in; local queueing is expected |
 | Collector errors, queue grows | Windows firewall, IP/routing, receiver, ingestion token, DB status |
 | Ingestion 400 | Clock synchronization, host ID, JSON/schema; do not delete the spool to hide it |

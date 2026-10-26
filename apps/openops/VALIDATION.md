@@ -22,7 +22,7 @@ Browser smoke checks passed in isolated headless Chrome: operator login, live da
 
 ## Limits
 
-This validates one monitor and one real incident, not production reliability or a complete operations platform. Dashboard charts read PostgreSQL directly; monitor evaluation retrieves through Zetaris. Incident correlation, notifications, multi-host operation and broader monitor management remain future work. No AI claim is made for the deterministic alert evaluator.
+This validates one monitor and one real incident, not production reliability or a complete operations platform. Dashboard charts read PostgreSQL directly; monitor evaluation retrieves through Zetaris. Incident correlation and broader live/provider evaluation remain future work. Console roles, multiple-host registration, monitor management and opt-in notification connectors are now implemented. No AI claim is made for the deterministic alert evaluator.
 
 ## Real AI investigation
 
@@ -33,3 +33,11 @@ Nightshift routed three calls to NVIDIA `nvidia/nemotron-3.5-bolt-e4b`: planner 
 Fourteen investigation tests cover citation contracts, abstention, context isolation, idempotent ingestion, transaction rollback, tool execution, bounded revision, queue deduplication, preserved reports, retry limits and provider failure without fabricated results. These supplement eight receiver/monitor tests.
 
 AI portal smoke checks also passed at 1440px and 600px: completed report, supported evaluator verdict, zero JavaScript errors and no horizontal overflow. The mobile screenshot was visually reviewed.
+
+## Console expansion — 26 October 2026
+
+33 tests passed. Coverage includes prior ingestion/monitor/AI behavior plus password hashing and sessions, revoked/expired/reassigned tokens, last-admin protection, API role enforcement, host-scoped ingestion and conditions, above/below severity escalation/de-escalation, ticket linking and acknowledgement removal, encrypted secrets, disabled connector behavior, idempotent outbox and actual local HTTP webhook delivery. Test accounts and telemetry use isolated temporary schemas.
+
+Production retained its original telemetry, Alert 1 and both completed investigation reports. Only username admin exists. A private database dump preceded migration. Live ingestion and Zetaris evaluation remained healthy.
+
+Headless Chrome checked all five independent sections, existing per-alert investigation, all six admin forms, and 1440px/600px/390px layouts without JavaScript errors or page overflow. Screenshots were reviewed locally. No external notification destination was configured. Real email/SMS provider delivery is not claimed.

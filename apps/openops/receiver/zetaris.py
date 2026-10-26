@@ -48,3 +48,14 @@ def latest():
     if not isinstance(headers, list) or len(headers) != len(rows[0]):
         raise ValueError("Missing Zetaris column headers")
     return dict(zip(headers, rows[0]))
+
+
+def latest_hosts():
+    reply=ADAPTER.query("SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY host_id ORDER BY observed_epoch DESC) AS row_rank FROM openops_pg.monitor_samples) ranked WHERE row_rank=1 LIMIT 500",500)
+    rows=reply.get('records',reply.get('data')) if isinstance(reply,dict) else None
+    if not isinstance(rows,list):raise ValueError('Unexpected Zetaris result shape')
+    if not rows:return []
+    if isinstance(rows[0],dict):return rows
+    headers=reply.get('headers')
+    if not isinstance(headers,list) or len(headers)!=len(rows[0]):raise ValueError('Missing Zetaris column headers')
+    return [dict(zip(headers,row)) for row in rows]

@@ -76,11 +76,11 @@ Preparation creates an empty Runtime-token setting if no configuration exists. A
 
 ## API and portal
 
-- `POST /api/investigations/start`, operator token: `{"alert_id":1,"retry":true}`. Use `new_run:true` explicitly to preserve the completed report and create another analysis.
-- `GET /api/investigations/<run_id>`, read/operator token: state, report, manifest and ordered trace.
-- `GET /api/world/<run_id>`, read/operator token: bounded structured world context.
+- `POST /api/investigations/start`, authenticated user session or user-owned token: `{"alert_id":1,"retry":true}`. Use `new_run:true` explicitly to preserve the completed report and create another analysis.
+- `GET /api/investigations/<run_id>`, authenticated user session or user-owned token: state, report, manifest and ordered trace.
+- `GET /api/world/<run_id>`, authenticated user session or user-owned token: bounded structured world context.
 - `/api/dashboard` includes recent investigation summaries.
 
-In the portal, select **Investigate** beside an alert. **AI investigations** shows status and report details, source IDs, missing evidence, evaluator findings and the execution trace. `error`, `interrupted` and `needs_review` remain visibly distinct from `completed`.
+In Alerts, open **Details** and select **Investigate / retry**. The alert details dialog shows status and report details, source IDs, missing evidence, evaluator findings and the execution trace. `error`, `interrupted` and `needs_review` remain visibly distinct from `completed`.
 
-Logs are written to stdout and `openops-logs` as `/app/logs/<run_id>.jsonl`, with matching database trace rows. Provider credentials are never written to those logs. Notifications remain a separate future integration.
+Logs are written to stdout and `openops-logs` as `/app/logs/<run_id>.jsonl`, with matching database trace rows. Provider credentials are never written to those logs. Opt-in notification connectors and role-based console access are described in [console administration](11-console-and-administration.md).

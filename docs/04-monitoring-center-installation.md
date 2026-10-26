@@ -69,7 +69,7 @@ python scripts/receiver_status.py
 python scripts/prepare_portal.py
 ```
 
-Operator access is written privately to `.local/portal-access.txt`. Open http://192.168.1.17:8096 and enter that token. It is separate from TeleMediation and ingestion credentials.
+Initial admin credentials are exported privately to `.local/admin-access.txt` after receiver readiness. Open http://192.168.1.17:8096 and sign in with username/password. Only admin is created. Create other accounts in Admin; see [console administration](11-console-and-administration.md).
 
 ## Nightshift and NVIDIA: separate preparation
 

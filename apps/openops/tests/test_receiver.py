@@ -32,7 +32,13 @@ class ReceiverTests(unittest.TestCase):
         with psycopg.connect() as db:
             db.execute(sql.SQL("CREATE SCHEMA {}").format(sql.Identifier(cls.schema)))
         os.environ["PGOPTIONS"] = "-c search_path=" + cls.schema + " -c statement_timeout=4000"
-        initialize()
+        with tempfile.TemporaryDirectory() as bootstrap:
+            old_log=os.environ.get('OPENOPS_LOG_DIR')
+            os.environ['OPENOPS_LOG_DIR']=bootstrap
+            try:initialize()
+            finally:
+                if old_log is None:os.environ.pop('OPENOPS_LOG_DIR',None)
+                else:os.environ['OPENOPS_LOG_DIR']=old_log
 
     @classmethod
     def tearDownClass(cls):
