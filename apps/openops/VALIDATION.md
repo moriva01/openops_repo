@@ -51,3 +51,9 @@ The optional local webhook connector subsequently delivered Alert 2 opening (`wa
 ## Microsoft Teams configuration
 
 The console subsequently added a Microsoft Teams connector type, named configuration fields, encrypted endpoint URLs and a Test action. 41 tests passed. Teams Operations was configured through the GUI using the participant's private signed Workflow URL; creation, blank-field edit preservation and API redaction were verified. Delivery 3 received HTTP 202 on its first attempt, and the participant confirmed the marked TEST card appeared in Teams. Future opening, severity-change and recovery events use the enabled connector. See [Teams setup and validation](../../docs/13-outgoing-webhooks-and-teams.md). No signed endpoint is published.
+
+## Offline judging package
+
+Three original synthetic inputs have paired computed outputs and JSONL traces. They cover disabled VOICE with recovery, CPU pressure with a rejected causal overclaim and one revision, and insufficient cause evidence with the alert still firing. The sample mode shares monitor transitions, bounded investigation orchestration, citation contracts and World Model services with live operation, using SQLite and authored generation fixtures instead of providers.
+
+Ten standard-library-only sample tests and 41 live-backend regression tests passed. Output and trace recomputation matched byte for byte. A CLI test denied socket/subprocess operations and excluded third-party site packages and provider settings. The isolated Docker sample ran all three cases under `--network none --read-only` with a temporary output filesystem. No external notification, live model call or production database write was made by the sample path. See [reproduction guide](../../docs/15-offline-examples.md).

@@ -1,0 +1,485 @@
+{
+  "case_id": "voice_output_blocked",
+  "disclosure": "OFFLINE SYNTHETIC DEMONSTRATION. Generation responses are authored fixtures, not live AI. No Zetaris, Nightshift, NVIDIA, external notification or production database is contacted.",
+  "input_sha256": "e9f2d5154134a78ce631e1e1bcb60fef06ed825f27d405496059fc4935cad8d6",
+  "log_file": "logs/sample_voice_output_blocked_e9f2d5154134.jsonl",
+  "manifest": {
+    "context_consumed_by": [
+      "planner",
+      "investigator",
+      "evaluator"
+    ],
+    "deadline_seconds": 200,
+    "evidence_tools": [
+      "timeline",
+      "portal_services",
+      "host_resources"
+    ],
+    "external_requests": 0,
+    "implemented": [
+      "WorldStoreService",
+      "IngestPipelineService",
+      "ContextBuilderService",
+      "stable_ids",
+      "atomic_ingest",
+      "provenance",
+      "derived_context"
+    ],
+    "live_integrations_used": [],
+    "max_model_calls": 5,
+    "max_tool_queries": 3,
+    "mode": "offline_fixture",
+    "model_calls": [
+      {
+        "live_generation": false,
+        "model": "scripted-fixture",
+        "provider": "offline-fixture",
+        "receipt_id": null,
+        "role": "planner"
+      },
+      {
+        "live_generation": false,
+        "model": "scripted-fixture",
+        "provider": "offline-fixture",
+        "receipt_id": null,
+        "role": "investigator"
+      },
+      {
+        "live_generation": false,
+        "model": "scripted-fixture",
+        "provider": "offline-fixture",
+        "receipt_id": null,
+        "role": "evaluator"
+      }
+    ],
+    "not_implemented": [
+      "vector_memory",
+      "autonomous_repair",
+      "enrichment_queue",
+      "world_migrations"
+    ],
+    "notifications_sent": 0,
+    "planner_requested_tools": [
+      "portal_services",
+      "host_resources"
+    ],
+    "provider": "scripted-fixture",
+    "required_evidence_tool": "portal_services",
+    "schema_version": 1,
+    "source": "synthetic-fixture",
+    "storage": "sqlite",
+    "synthetic_data": true,
+    "world_context_key": "sample_voice_output_blocked_e9f2d5154134:attempt:1",
+    "world_store_counts": {
+      "wm_contexts": 1,
+      "wm_edges": 2,
+      "wm_entities": 3,
+      "wm_memberships": 21,
+      "wm_observations": 21
+    }
+  },
+  "mode": "offline_fixture",
+  "monitor": {
+    "final_state": "normal",
+    "history": [
+      {
+        "observed_epoch": 1792843200.0,
+        "severity": "warning",
+        "source_event_id": "c1293a5b-d78e-54fd-b6a7-203b5af44432",
+        "state": "pending",
+        "transition": null,
+        "value": 2
+      },
+      {
+        "observed_epoch": 1792843215.0,
+        "severity": "warning",
+        "source_event_id": "fb77e5e8-cef0-54c6-ad68-42684e2a377b",
+        "state": "pending",
+        "transition": null,
+        "value": 2
+      },
+      {
+        "observed_epoch": 1792843230.0,
+        "severity": "warning",
+        "source_event_id": "bc8245b5-9b40-5ae0-9870-9dc29a576927",
+        "state": "pending",
+        "transition": null,
+        "value": 2
+      },
+      {
+        "observed_epoch": 1792843245.0,
+        "severity": "warning",
+        "source_event_id": "1df1ab66-9a1c-52d9-85b9-9b2e0b9041ac",
+        "state": "pending",
+        "transition": null,
+        "value": 2
+      },
+      {
+        "observed_epoch": 1792843260.0,
+        "severity": "warning",
+        "source_event_id": "e3e5e44d-fdcd-5ebd-9cd1-761eb325e034",
+        "state": "firing",
+        "transition": "opened",
+        "value": 2
+      },
+      {
+        "observed_epoch": 1792843275.0,
+        "severity": null,
+        "source_event_id": "24320204-218d-5459-81d5-0635fec61884",
+        "state": "recovering",
+        "transition": null,
+        "value": 0
+      },
+      {
+        "observed_epoch": 1792843290.0,
+        "severity": "clear",
+        "source_event_id": "8597be4f-497d-5663-8522-3e950d65587c",
+        "state": "normal",
+        "transition": "resolved",
+        "value": 0
+      }
+    ],
+    "notifications_sent": 0,
+    "remediation_executed": false
+  },
+  "report": {
+    "alternatives": [],
+    "evidence": [
+      {
+        "evidence_id": "observation_2cbba8fc76005497ffad7602",
+        "facts": {
+          "app_reachable": true,
+          "oldest_pending_seconds": 60.0,
+          "throughput": 0.0,
+          "voice_pending": 2.0
+        },
+        "observed_epoch": 1792843260.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "e3e5e44d-fdcd-5ebd-9cd1-761eb325e034",
+        "tool": "timeline"
+      },
+      {
+        "evidence_id": "observation_db08149df57d9bd5bc4c368e",
+        "facts": {
+          "cpu_percent": 21.0,
+          "disk_percent": 18.0,
+          "memory_percent": 32.0
+        },
+        "observed_epoch": 1792843260.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "e3e5e44d-fdcd-5ebd-9cd1-761eb325e034",
+        "tool": "host_resources"
+      },
+      {
+        "evidence_id": "observation_e64f6e47566e5052f55dd5df",
+        "facts": {
+          "api_process": "active",
+          "app_reachable": true,
+          "data_output_enabled": true,
+          "data_pending": 0.0,
+          "delivery_process": "active",
+          "mediation_process": "active",
+          "sms_output_enabled": true,
+          "sms_pending": 0.0,
+          "voice_output_enabled": false
+        },
+        "observed_epoch": 1792843260.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "e3e5e44d-fdcd-5ebd-9cd1-761eb325e034",
+        "tool": "portal_services"
+      },
+      {
+        "evidence_id": "observation_0adc2bc9ede484d3aa1d37b3",
+        "facts": {
+          "cpu_percent": 21.0,
+          "disk_percent": 18.0,
+          "memory_percent": 32.0
+        },
+        "observed_epoch": 1792843245.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "1df1ab66-9a1c-52d9-85b9-9b2e0b9041ac",
+        "tool": "host_resources"
+      },
+      {
+        "evidence_id": "observation_5aaf61947987906d54b6d2ef",
+        "facts": {
+          "api_process": "active",
+          "app_reachable": true,
+          "data_output_enabled": true,
+          "data_pending": 0.0,
+          "delivery_process": "active",
+          "mediation_process": "active",
+          "sms_output_enabled": true,
+          "sms_pending": 0.0,
+          "voice_output_enabled": true
+        },
+        "observed_epoch": 1792843275.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "24320204-218d-5459-81d5-0635fec61884",
+        "tool": "portal_services"
+      },
+      {
+        "evidence_id": "observation_87a75b1db0ed215e400d79fd",
+        "facts": {
+          "app_reachable": true,
+          "oldest_pending_seconds": 0.0,
+          "throughput": 6.0,
+          "voice_pending": 0.0
+        },
+        "observed_epoch": 1792843275.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "24320204-218d-5459-81d5-0635fec61884",
+        "tool": "timeline"
+      },
+      {
+        "evidence_id": "observation_dceb329b8b7c064afd079c23",
+        "facts": {
+          "app_reachable": true,
+          "oldest_pending_seconds": 45.0,
+          "throughput": 0.0,
+          "voice_pending": 2.0
+        },
+        "observed_epoch": 1792843245.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "1df1ab66-9a1c-52d9-85b9-9b2e0b9041ac",
+        "tool": "timeline"
+      },
+      {
+        "evidence_id": "observation_f17c16c573ed0cb7ffe43028",
+        "facts": {
+          "api_process": "active",
+          "app_reachable": true,
+          "data_output_enabled": true,
+          "data_pending": 0.0,
+          "delivery_process": "active",
+          "mediation_process": "active",
+          "sms_output_enabled": true,
+          "sms_pending": 0.0,
+          "voice_output_enabled": false
+        },
+        "observed_epoch": 1792843245.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "1df1ab66-9a1c-52d9-85b9-9b2e0b9041ac",
+        "tool": "portal_services"
+      },
+      {
+        "evidence_id": "observation_f708d2e8e7b6b5aa132024c3",
+        "facts": {
+          "cpu_percent": 21.0,
+          "disk_percent": 18.0,
+          "memory_percent": 32.0
+        },
+        "observed_epoch": 1792843275.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "24320204-218d-5459-81d5-0635fec61884",
+        "tool": "host_resources"
+      },
+      {
+        "evidence_id": "observation_06cf61664c335dc801fa7c3f",
+        "facts": {
+          "app_reachable": true,
+          "oldest_pending_seconds": 30.0,
+          "throughput": 0.0,
+          "voice_pending": 2.0
+        },
+        "observed_epoch": 1792843230.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "bc8245b5-9b40-5ae0-9870-9dc29a576927",
+        "tool": "timeline"
+      },
+      {
+        "evidence_id": "observation_532e8469c4b58e0dfe1b573b",
+        "facts": {
+          "api_process": "active",
+          "app_reachable": true,
+          "data_output_enabled": true,
+          "data_pending": 0.0,
+          "delivery_process": "active",
+          "mediation_process": "active",
+          "sms_output_enabled": true,
+          "sms_pending": 0.0,
+          "voice_output_enabled": false
+        },
+        "observed_epoch": 1792843230.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "bc8245b5-9b40-5ae0-9870-9dc29a576927",
+        "tool": "portal_services"
+      },
+      {
+        "evidence_id": "observation_838737ffae143ba0a730e5b1",
+        "facts": {
+          "cpu_percent": 21.0,
+          "disk_percent": 18.0,
+          "memory_percent": 32.0
+        },
+        "observed_epoch": 1792843290.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "8597be4f-497d-5663-8522-3e950d65587c",
+        "tool": "host_resources"
+      },
+      {
+        "evidence_id": "observation_8b2909e811020093c0263aa6",
+        "facts": {
+          "cpu_percent": 21.0,
+          "disk_percent": 18.0,
+          "memory_percent": 32.0
+        },
+        "observed_epoch": 1792843230.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "bc8245b5-9b40-5ae0-9870-9dc29a576927",
+        "tool": "host_resources"
+      },
+      {
+        "evidence_id": "observation_e0dd65a66ce30f164c0b7e99",
+        "facts": {
+          "api_process": "active",
+          "app_reachable": true,
+          "data_output_enabled": true,
+          "data_pending": 0.0,
+          "delivery_process": "active",
+          "mediation_process": "active",
+          "sms_output_enabled": true,
+          "sms_pending": 0.0,
+          "voice_output_enabled": true
+        },
+        "observed_epoch": 1792843290.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "8597be4f-497d-5663-8522-3e950d65587c",
+        "tool": "portal_services"
+      },
+      {
+        "evidence_id": "observation_f75d933c0979352d5375b6c0",
+        "facts": {
+          "app_reachable": true,
+          "oldest_pending_seconds": 0.0,
+          "throughput": 6.0,
+          "voice_pending": 0.0
+        },
+        "observed_epoch": 1792843290.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "8597be4f-497d-5663-8522-3e950d65587c",
+        "tool": "timeline"
+      },
+      {
+        "evidence_id": "observation_2115e317230a857c5e5f882e",
+        "facts": {
+          "api_process": "active",
+          "app_reachable": true,
+          "data_output_enabled": true,
+          "data_pending": 0.0,
+          "delivery_process": "active",
+          "mediation_process": "active",
+          "sms_output_enabled": true,
+          "sms_pending": 0.0,
+          "voice_output_enabled": false
+        },
+        "observed_epoch": 1792843215.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "fb77e5e8-cef0-54c6-ad68-42684e2a377b",
+        "tool": "portal_services"
+      },
+      {
+        "evidence_id": "observation_309c7a84224c88195eba2343",
+        "facts": {
+          "cpu_percent": 21.0,
+          "disk_percent": 18.0,
+          "memory_percent": 32.0
+        },
+        "observed_epoch": 1792843215.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "fb77e5e8-cef0-54c6-ad68-42684e2a377b",
+        "tool": "host_resources"
+      },
+      {
+        "evidence_id": "observation_da19cd246993d9b6fc1d58f7",
+        "facts": {
+          "app_reachable": true,
+          "oldest_pending_seconds": 15.0,
+          "throughput": 0.0,
+          "voice_pending": 2.0
+        },
+        "observed_epoch": 1792843215.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "fb77e5e8-cef0-54c6-ad68-42684e2a377b",
+        "tool": "timeline"
+      },
+      {
+        "evidence_id": "observation_7f955e933deed51d2f8c5a32",
+        "facts": {
+          "api_process": "active",
+          "app_reachable": true,
+          "data_output_enabled": true,
+          "data_pending": 0.0,
+          "delivery_process": "active",
+          "mediation_process": "active",
+          "sms_output_enabled": true,
+          "sms_pending": 0.0,
+          "voice_output_enabled": false
+        },
+        "observed_epoch": 1792843200.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "c1293a5b-d78e-54fd-b6a7-203b5af44432",
+        "tool": "portal_services"
+      },
+      {
+        "evidence_id": "observation_925545c9476550ae30bb512b",
+        "facts": {
+          "cpu_percent": 21.0,
+          "disk_percent": 18.0,
+          "memory_percent": 32.0
+        },
+        "observed_epoch": 1792843200.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "c1293a5b-d78e-54fd-b6a7-203b5af44432",
+        "tool": "host_resources"
+      },
+      {
+        "evidence_id": "observation_e2091cd4c42b8de6e6f29d1c",
+        "facts": {
+          "app_reachable": true,
+          "oldest_pending_seconds": 0.0,
+          "throughput": 0.0,
+          "voice_pending": 2.0
+        },
+        "observed_epoch": 1792843200.0,
+        "selectionReason": "same incident context; nearest opening observation",
+        "source_event_id": "c1293a5b-d78e-54fd-b6a7-203b5af44432",
+        "tool": "timeline"
+      }
+    ],
+    "hypotheses": [
+      {
+        "confidence": "high",
+        "evidence_ids": [
+          "observation_e64f6e47566e5052f55dd5df",
+          "observation_db08149df57d9bd5bc4c368e",
+          "observation_87a75b1db0ed215e400d79fd"
+        ],
+        "explanation": "The cited configuration reports disabled VOICE output while delivery remained active. The observations support this explanation but do not establish an operator change history.",
+        "title": "Disabled output portal is consistent with the backlog"
+      }
+    ],
+    "missing_evidence": [
+      "No operator configuration-change audit or external delivery acknowledgement is included."
+    ],
+    "recommended_checks": [
+      "Inspect the output portal change audit and compare it with the incident window."
+    ],
+    "review": {
+      "issues": [],
+      "verdict": "supported"
+    },
+    "scope": {
+      "end_epoch": 1792843380.0,
+      "historical_incident_window": true,
+      "remediation_executed": false,
+      "start_epoch": 1792843140.0
+    },
+    "status": "supported_hypothesis",
+    "summary": "The VOICE output was disabled while a queue persisted, despite an active delivery process and healthy sampled host resources. Later samples show the queue drained."
+  },
+  "run_id": "sample_voice_output_blocked_e9f2d5154134",
+  "schema": "openops.sample_result.v1",
+  "status": "completed",
+  "trace_steps": 25
+}

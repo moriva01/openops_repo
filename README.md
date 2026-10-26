@@ -4,6 +4,17 @@ Original source for **TeleMediation Convergent**, its Linux collector, and the *
 
 The system uses two independent machines: one runs a synthetic telecom mediation application; the other receives and stores telemetry, queries it through Zetaris, and evaluates monitors. A VM is one deployment option for the first machine, not an architectural requirement.
 
+## Try the offline examples
+
+With Python 3.9+ and no third-party packages or provider credentials, run from this repository root:
+
+```bash
+python run.py --sample --all --quiet-trace
+python tools/verify_examples.py
+```
+
+Three synthetic inputs cover a blocked VOICE output, CPU pressure with a critique/revision step, and insufficient evidence without false recovery. Shared monitoring, investigation and World Model code executes with SQLite; generation responses are explicitly scripted fixtures, not live AI. See [inputs](input_examples/README.md), [matching outputs and traces](output_examples/README.md), and [offline/Docker instructions](docs/15-offline-examples.md). The live console and services remain separate.
+
 ## Start here
 
 1. [Implementation status and limitations](docs/00-status.md).
@@ -17,6 +28,8 @@ The system uses two independent machines: one runs a synthetic telecom mediation
 9. [Operations, backups and deployment migration](docs/08-operations-and-migration.md).
 10. [Repository validation](docs/09-repository-validation.md).
 11. [Meterless investigation and shared world state](docs/10-ai-investigation.md).
+12. [Submission readiness and remaining deliverables](docs/14-submission-readiness.md).
+13. [Offline examples and judge-facing entry point](docs/15-offline-examples.md).
 
 ## Repository layout
 

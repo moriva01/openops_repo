@@ -1,0 +1,13 @@
+*
+!run.py
+!input_examples/
+!input_examples/*.json
+!apps/
+!apps/openops/
+!apps/openops/LICENSE
+!apps/openops/receiver/
+!apps/openops/receiver/__init__.py
+!apps/openops/receiver/sample_runner.py
+!apps/openops/receiver/investigation_engine.py
+!apps/openops/receiver/monitor_logic.py
+!apps/openops/receiver/world_model.py

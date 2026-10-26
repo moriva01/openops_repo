@@ -11,3 +11,7 @@
 **/*.pem
 **/*.key
 third_party/
+
+# Only authored synthetic example traces are published. Runtime logs remain ignored.
+!output_examples/logs/
+!output_examples/logs/*.jsonl

@@ -2,7 +2,7 @@
 
 ## Product brief
 
-An independent open-source operations platform for small IT teams. It collects server and application telemetry, detects sustained problems, preserves evidence and verifies recovery. A planned investigation layer will use AI to compare explanations and recommend next checks.
+An independent open-source operations platform for small IT teams. It collects server and application telemetry, detects sustained problems, preserves evidence and verifies recovery. Its implemented investigation layer uses AI to compare explanations and recommend evidence-linked next checks.
 
 ## Demonstration application
 
@@ -14,7 +14,7 @@ Host metrics are real. Telecom usage is synthetic. This is a laboratory applicat
 
 Zetaris exposes a read-only view of the telemetry database and returns the observations used by the monitor evaluator. Charts use application PostgreSQL directly; these paths are documented separately.
 
-## Planned AI contribution
+## Implemented AI contribution
 
 A minimal Meterless World Model adaptation maintains grounded entities, observations and declared relationships. Nightshift supplies real NVIDIA generation through an injected adapter. Bounded planner, investigator and evaluator calls produce cited hypotheses, alternatives and missing-evidence checks. No repair is executed.
 

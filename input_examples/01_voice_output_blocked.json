@@ -1,0 +1,227 @@
+{
+  "case_id": "voice_output_blocked",
+  "evidence_selectors": {
+    "blocked": {
+      "facts": {
+        "delivery_process": "active",
+        "voice_output_enabled": false
+      },
+      "tool": "portal_services"
+    },
+    "drained": {
+      "facts": {
+        "throughput": 6,
+        "voice_pending": 0
+      },
+      "tool": "timeline"
+    },
+    "healthy_host": {
+      "facts": {
+        "cpu_percent": 21,
+        "memory_percent": 32
+      },
+      "tool": "host_resources"
+    }
+  },
+  "expected": {
+    "fixture_calls": 3,
+    "monitor_final_state": "normal",
+    "report_status": "supported_hypothesis",
+    "revision_required": false
+  },
+  "monitor": {
+    "comparator": "above",
+    "duration_seconds": 60,
+    "metric": "voice_pending",
+    "name": "VOICE output backlog",
+    "recovery_samples": 2,
+    "severity": "warning",
+    "threshold": 0
+  },
+  "observations": [
+    {
+      "api_process": "active",
+      "app_reachable": true,
+      "cpu_percent": 21,
+      "data_output_enabled": true,
+      "data_pending": 0,
+      "delivery_process": "active",
+      "disk_percent": 18,
+      "event_id": "c1293a5b-d78e-54fd-b6a7-203b5af44432",
+      "mediation_process": "active",
+      "memory_percent": 32,
+      "observed_epoch": 1792843200.0,
+      "oldest_pending_seconds": 0,
+      "rejected_total": 0,
+      "sms_output_enabled": true,
+      "sms_pending": 0,
+      "throughput": 0,
+      "voice_output_enabled": false,
+      "voice_pending": 2
+    },
+    {
+      "api_process": "active",
+      "app_reachable": true,
+      "cpu_percent": 21,
+      "data_output_enabled": true,
+      "data_pending": 0,
+      "delivery_process": "active",
+      "disk_percent": 18,
+      "event_id": "fb77e5e8-cef0-54c6-ad68-42684e2a377b",
+      "mediation_process": "active",
+      "memory_percent": 32,
+      "observed_epoch": 1792843215.0,
+      "oldest_pending_seconds": 15,
+      "rejected_total": 0,
+      "sms_output_enabled": true,
+      "sms_pending": 0,
+      "throughput": 0,
+      "voice_output_enabled": false,
+      "voice_pending": 2
+    },
+    {
+      "api_process": "active",
+      "app_reachable": true,
+      "cpu_percent": 21,
+      "data_output_enabled": true,
+      "data_pending": 0,
+      "delivery_process": "active",
+      "disk_percent": 18,
+      "event_id": "bc8245b5-9b40-5ae0-9870-9dc29a576927",
+      "mediation_process": "active",
+      "memory_percent": 32,
+      "observed_epoch": 1792843230.0,
+      "oldest_pending_seconds": 30,
+      "rejected_total": 0,
+      "sms_output_enabled": true,
+      "sms_pending": 0,
+      "throughput": 0,
+      "voice_output_enabled": false,
+      "voice_pending": 2
+    },
+    {
+      "api_process": "active",
+      "app_reachable": true,
+      "cpu_percent": 21,
+      "data_output_enabled": true,
+      "data_pending": 0,
+      "delivery_process": "active",
+      "disk_percent": 18,
+      "event_id": "1df1ab66-9a1c-52d9-85b9-9b2e0b9041ac",
+      "mediation_process": "active",
+      "memory_percent": 32,
+      "observed_epoch": 1792843245.0,
+      "oldest_pending_seconds": 45,
+      "rejected_total": 0,
+      "sms_output_enabled": true,
+      "sms_pending": 0,
+      "throughput": 0,
+      "voice_output_enabled": false,
+      "voice_pending": 2
+    },
+    {
+      "api_process": "active",
+      "app_reachable": true,
+      "cpu_percent": 21,
+      "data_output_enabled": true,
+      "data_pending": 0,
+      "delivery_process": "active",
+      "disk_percent": 18,
+      "event_id": "e3e5e44d-fdcd-5ebd-9cd1-761eb325e034",
+      "mediation_process": "active",
+      "memory_percent": 32,
+      "observed_epoch": 1792843260.0,
+      "oldest_pending_seconds": 60,
+      "rejected_total": 0,
+      "sms_output_enabled": true,
+      "sms_pending": 0,
+      "throughput": 0,
+      "voice_output_enabled": false,
+      "voice_pending": 2
+    },
+    {
+      "api_process": "active",
+      "app_reachable": true,
+      "cpu_percent": 21,
+      "data_output_enabled": true,
+      "data_pending": 0,
+      "delivery_process": "active",
+      "disk_percent": 18,
+      "event_id": "24320204-218d-5459-81d5-0635fec61884",
+      "mediation_process": "active",
+      "memory_percent": 32,
+      "observed_epoch": 1792843275.0,
+      "oldest_pending_seconds": 0,
+      "rejected_total": 0,
+      "sms_output_enabled": true,
+      "sms_pending": 0,
+      "throughput": 6,
+      "voice_output_enabled": true,
+      "voice_pending": 0
+    },
+    {
+      "api_process": "active",
+      "app_reachable": true,
+      "cpu_percent": 21,
+      "data_output_enabled": true,
+      "data_pending": 0,
+      "delivery_process": "active",
+      "disk_percent": 18,
+      "event_id": "8597be4f-497d-5663-8522-3e950d65587c",
+      "mediation_process": "active",
+      "memory_percent": 32,
+      "observed_epoch": 1792843290.0,
+      "oldest_pending_seconds": 0,
+      "rejected_total": 0,
+      "sms_output_enabled": true,
+      "sms_pending": 0,
+      "throughput": 6,
+      "voice_output_enabled": true,
+      "voice_pending": 0
+    }
+  ],
+  "provenance": {
+    "created_on": "2026-10-26",
+    "kind": "synthetic",
+    "license": "MIT",
+    "source": "Original hand-authored OpenOps demonstration fixtures; no captured infrastructure data."
+  },
+  "schema": "openops.offline_case.v1",
+  "scripted_responses": {
+    "evaluator": {
+      "issues": [],
+      "verdict": "supported"
+    },
+    "investigator": {
+      "alternatives": [],
+      "hypotheses": [
+        {
+          "confidence": "high",
+          "evidence_ids": [
+            "$evidence:blocked",
+            "$evidence:healthy_host",
+            "$evidence:drained"
+          ],
+          "explanation": "The cited configuration reports disabled VOICE output while delivery remained active. The observations support this explanation but do not establish an operator change history.",
+          "title": "Disabled output portal is consistent with the backlog"
+        }
+      ],
+      "missing_evidence": [
+        "No operator configuration-change audit or external delivery acknowledgement is included."
+      ],
+      "recommended_checks": [
+        "Inspect the output portal change audit and compare it with the incident window."
+      ],
+      "status": "supported_hypothesis",
+      "summary": "The VOICE output was disabled while a queue persisted, despite an active delivery process and healthy sampled host resources. Later samples show the queue drained."
+    },
+    "planner": {
+      "reason": "Fixture plan compares output configuration, process state and host resource observations.",
+      "tools": [
+        "portal_services",
+        "host_resources"
+      ]
+    }
+  },
+  "title": "VOICE output backlog"
+}

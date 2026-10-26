@@ -1,0 +1,157 @@
+{
+  "case_id": "insufficient_evidence",
+  "evidence_selectors": {},
+  "expected": {
+    "fixture_calls": 3,
+    "monitor_final_state": "firing",
+    "report_status": "insufficient_evidence",
+    "revision_required": false
+  },
+  "monitor": {
+    "comparator": "above",
+    "duration_seconds": 60,
+    "metric": "voice_pending",
+    "name": "VOICE backlog with missing cause evidence",
+    "recovery_samples": 2,
+    "severity": "warning",
+    "threshold": 0
+  },
+  "observations": [
+    {
+      "api_process": null,
+      "app_reachable": true,
+      "cpu_percent": null,
+      "data_output_enabled": null,
+      "data_pending": 0,
+      "delivery_process": null,
+      "disk_percent": null,
+      "event_id": "84a2cb08-5dbb-58b2-8225-33711e5992be",
+      "mediation_process": null,
+      "memory_percent": null,
+      "observed_epoch": 1792843200.0,
+      "oldest_pending_seconds": 0,
+      "rejected_total": 0,
+      "sms_output_enabled": null,
+      "sms_pending": 0,
+      "throughput": 0,
+      "voice_output_enabled": null,
+      "voice_pending": 2
+    },
+    {
+      "api_process": null,
+      "app_reachable": true,
+      "cpu_percent": null,
+      "data_output_enabled": null,
+      "data_pending": 0,
+      "delivery_process": null,
+      "disk_percent": null,
+      "event_id": "41753b70-e91d-5be6-acb8-2e45592a6a4e",
+      "mediation_process": null,
+      "memory_percent": null,
+      "observed_epoch": 1792843215.0,
+      "oldest_pending_seconds": 15,
+      "rejected_total": 0,
+      "sms_output_enabled": null,
+      "sms_pending": 0,
+      "throughput": 0,
+      "voice_output_enabled": null,
+      "voice_pending": 2
+    },
+    {
+      "api_process": null,
+      "app_reachable": true,
+      "cpu_percent": null,
+      "data_output_enabled": null,
+      "data_pending": 0,
+      "delivery_process": null,
+      "disk_percent": null,
+      "event_id": "c3275678-da41-5487-82a0-bdc1d3fa3970",
+      "mediation_process": null,
+      "memory_percent": null,
+      "observed_epoch": 1792843230.0,
+      "oldest_pending_seconds": 30,
+      "rejected_total": 0,
+      "sms_output_enabled": null,
+      "sms_pending": 0,
+      "throughput": 0,
+      "voice_output_enabled": null,
+      "voice_pending": 2
+    },
+    {
+      "api_process": null,
+      "app_reachable": true,
+      "cpu_percent": null,
+      "data_output_enabled": null,
+      "data_pending": 0,
+      "delivery_process": null,
+      "disk_percent": null,
+      "event_id": "e05f828a-a62c-589c-8081-c016bd5160c5",
+      "mediation_process": null,
+      "memory_percent": null,
+      "observed_epoch": 1792843245.0,
+      "oldest_pending_seconds": 45,
+      "rejected_total": 0,
+      "sms_output_enabled": null,
+      "sms_pending": 0,
+      "throughput": 0,
+      "voice_output_enabled": null,
+      "voice_pending": 2
+    },
+    {
+      "api_process": null,
+      "app_reachable": true,
+      "cpu_percent": null,
+      "data_output_enabled": null,
+      "data_pending": 0,
+      "delivery_process": null,
+      "disk_percent": null,
+      "event_id": "0b352702-9923-58dc-a244-c717e20561e6",
+      "mediation_process": null,
+      "memory_percent": null,
+      "observed_epoch": 1792843260.0,
+      "oldest_pending_seconds": 60,
+      "rejected_total": 0,
+      "sms_output_enabled": null,
+      "sms_pending": 0,
+      "throughput": 0,
+      "voice_output_enabled": null,
+      "voice_pending": 2
+    }
+  ],
+  "provenance": {
+    "created_on": "2026-10-26",
+    "kind": "synthetic",
+    "license": "MIT",
+    "source": "Original hand-authored OpenOps demonstration fixtures; no captured infrastructure data."
+  },
+  "schema": "openops.offline_case.v1",
+  "scripted_responses": {
+    "evaluator": {
+      "issues": [
+        "Available observations establish the symptom but do not support a causal explanation."
+      ],
+      "verdict": "insufficient"
+    },
+    "investigator": {
+      "alternatives": [],
+      "hypotheses": [],
+      "missing_evidence": [
+        "VOICE output enablement is unavailable.",
+        "Service process observations and host resource readings are unavailable."
+      ],
+      "recommended_checks": [
+        "Collect portal configuration, service health and host resource evidence for the same incident window."
+      ],
+      "status": "insufficient_evidence",
+      "summary": "A sustained VOICE backlog is observed, but portal configuration, process state and host resource observations are missing. The cause cannot be determined from this fixture."
+    },
+    "planner": {
+      "reason": "Fixture plan compares output configuration, process state and host resource observations.",
+      "tools": [
+        "portal_services",
+        "host_resources"
+      ]
+    }
+  },
+  "title": "VOICE backlog with missing cause evidence"
+}

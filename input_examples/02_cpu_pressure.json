@@ -1,0 +1,203 @@
+{
+  "case_id": "cpu_pressure",
+  "evidence_selectors": {
+    "cpu_high": {
+      "facts": {
+        "cpu_percent": 98
+      },
+      "tool": "host_resources"
+    },
+    "portal_healthy": {
+      "facts": {
+        "delivery_process": "active",
+        "voice_output_enabled": true
+      },
+      "tool": "portal_services"
+    }
+  },
+  "expected": {
+    "fixture_calls": 5,
+    "monitor_final_state": "normal",
+    "report_status": "supported_hypothesis",
+    "revision_required": true
+  },
+  "monitor": {
+    "comparator": "above",
+    "duration_seconds": 30,
+    "metric": "cpu_percent",
+    "name": "Host CPU pressure",
+    "recovery_samples": 2,
+    "severity": "warning",
+    "threshold": 80
+  },
+  "observations": [
+    {
+      "api_process": "active",
+      "app_reachable": true,
+      "cpu_percent": 91,
+      "data_output_enabled": true,
+      "data_pending": 0,
+      "delivery_process": "active",
+      "disk_percent": 18,
+      "event_id": "863c5150-05e7-584d-84b3-b10f5476d7b5",
+      "mediation_process": "active",
+      "memory_percent": 32,
+      "observed_epoch": 1792843200.0,
+      "oldest_pending_seconds": 0,
+      "rejected_total": 0,
+      "sms_output_enabled": true,
+      "sms_pending": 0,
+      "throughput": 6,
+      "voice_output_enabled": true,
+      "voice_pending": 0
+    },
+    {
+      "api_process": "active",
+      "app_reachable": true,
+      "cpu_percent": 95,
+      "data_output_enabled": true,
+      "data_pending": 0,
+      "delivery_process": "active",
+      "disk_percent": 18,
+      "event_id": "33a04303-9fa6-5a3a-bedc-ae6ba4e9e5e2",
+      "mediation_process": "active",
+      "memory_percent": 32,
+      "observed_epoch": 1792843215.0,
+      "oldest_pending_seconds": 0,
+      "rejected_total": 0,
+      "sms_output_enabled": true,
+      "sms_pending": 0,
+      "throughput": 6,
+      "voice_output_enabled": true,
+      "voice_pending": 0
+    },
+    {
+      "api_process": "active",
+      "app_reachable": true,
+      "cpu_percent": 98,
+      "data_output_enabled": true,
+      "data_pending": 0,
+      "delivery_process": "active",
+      "disk_percent": 18,
+      "event_id": "78e77ccc-64f2-5423-ac6f-d4bdcfa9fbc9",
+      "mediation_process": "active",
+      "memory_percent": 32,
+      "observed_epoch": 1792843230.0,
+      "oldest_pending_seconds": 0,
+      "rejected_total": 0,
+      "sms_output_enabled": true,
+      "sms_pending": 0,
+      "throughput": 6,
+      "voice_output_enabled": true,
+      "voice_pending": 0
+    },
+    {
+      "api_process": "active",
+      "app_reachable": true,
+      "cpu_percent": 24,
+      "data_output_enabled": true,
+      "data_pending": 0,
+      "delivery_process": "active",
+      "disk_percent": 18,
+      "event_id": "424692a6-e0bc-5b06-971c-d48d57df1712",
+      "mediation_process": "active",
+      "memory_percent": 32,
+      "observed_epoch": 1792843245.0,
+      "oldest_pending_seconds": 0,
+      "rejected_total": 0,
+      "sms_output_enabled": true,
+      "sms_pending": 0,
+      "throughput": 6,
+      "voice_output_enabled": true,
+      "voice_pending": 0
+    },
+    {
+      "api_process": "active",
+      "app_reachable": true,
+      "cpu_percent": 22,
+      "data_output_enabled": true,
+      "data_pending": 0,
+      "delivery_process": "active",
+      "disk_percent": 18,
+      "event_id": "594a60fc-038f-58d1-a271-cdc20883b388",
+      "mediation_process": "active",
+      "memory_percent": 32,
+      "observed_epoch": 1792843260.0,
+      "oldest_pending_seconds": 0,
+      "rejected_total": 0,
+      "sms_output_enabled": true,
+      "sms_pending": 0,
+      "throughput": 6,
+      "voice_output_enabled": true,
+      "voice_pending": 0
+    }
+  ],
+  "provenance": {
+    "created_on": "2026-10-26",
+    "kind": "synthetic",
+    "license": "MIT",
+    "source": "Original hand-authored OpenOps demonstration fixtures; no captured infrastructure data."
+  },
+  "schema": "openops.offline_case.v1",
+  "scripted_responses": {
+    "evaluator": {
+      "issues": [
+        "High CPU does not establish application failure. The supplied availability observations contradict that claim; narrow the conclusion to observed resource pressure."
+      ],
+      "verdict": "revise"
+    },
+    "final_evaluator": {
+      "issues": [],
+      "verdict": "supported"
+    },
+    "investigator": {
+      "alternatives": [],
+      "hypotheses": [
+        {
+          "confidence": "high",
+          "evidence_ids": [
+            "$evidence:cpu_high"
+          ],
+          "explanation": "The high CPU reading proves an application outage.",
+          "title": "CPU caused the application failure"
+        }
+      ],
+      "missing_evidence": [],
+      "recommended_checks": [
+        "Inspect CPU consumers."
+      ],
+      "status": "supported_hypothesis",
+      "summary": "High CPU proves the application failed."
+    },
+    "investigator_revision": {
+      "alternatives": [],
+      "hypotheses": [
+        {
+          "confidence": "high",
+          "evidence_ids": [
+            "$evidence:cpu_high",
+            "$evidence:portal_healthy"
+          ],
+          "explanation": "CPU reached 98 percent. The application portal remained enabled and delivery was active. The underlying CPU consumer and any application impact are unestablished.",
+          "title": "Host CPU pressure was observed"
+        }
+      ],
+      "missing_evidence": [
+        "No process-level CPU profile is available, so the underlying workload and application impact are unknown."
+      ],
+      "recommended_checks": [
+        "Read process-level CPU samples and application latency measurements before attributing impact."
+      ],
+      "status": "supported_hypothesis",
+      "summary": "CPU utilization exceeded its threshold during the observed window. The sampled application and delivery process remained available; these observations do not prove an application outage."
+    },
+    "planner": {
+      "reason": "Fixture plan compares output configuration, process state and host resource observations.",
+      "tools": [
+        "portal_services",
+        "host_resources"
+      ]
+    }
+  },
+  "title": "Host CPU pressure"
+}

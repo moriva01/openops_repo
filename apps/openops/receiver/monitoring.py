@@ -10,7 +10,7 @@ METRICS = {"voice_pending": "Voice output pending", "cpu_percent": "Host CPU uti
            "memory_percent": "Host memory utilization (%)", "disk_percent": "Host disk utilization (%)", "sms_pending":"SMS output pending", "data_pending":"Data output pending",
  "oldest_pending_seconds":"Oldest pending age (seconds)", "app_down":"Application unavailable (1 = down)",
  "api_down":"API process unavailable (1 = down)","mediation_down":"Mediation process unavailable (1 = down)","delivery_down":"Delivery process unavailable (1 = down)"}
-SEVERITIES = ['info','warning','minor','major','critical']
+from receiver.monitor_logic import SEVERITIES,next_state,severity_for
 DDL = """
 CREATE TABLE IF NOT EXISTS monitors(
  id serial PRIMARY KEY, name text NOT NULL, metric text NOT NULL, threshold double precision NOT NULL,
@@ -52,29 +52,6 @@ def initialize(db):
             VALUES('Voice output backlog','voice_pending',0,60,2,'warning')""")
 
 
-def next_state(monitor, value, observed):
-    """Pure transition. Call only once per distinct, fresh, ordered observation."""
-    state = monitor["state"]
-    since = monitor["condition_since"]
-    count = monitor["recovery_count"]
-    gap = monitor["last_observed"] is not None and observed - monitor["last_observed"] > 60
-    if gap:
-        since, count = None, 0
-    if value > monitor["threshold"]:
-        count = 0
-        if state in ("firing", "recovering"):
-            return "firing", None, 0, None
-        since = observed if since is None else since
-        if observed - since >= monitor["duration_seconds"]:
-            return "firing", None, 0, "opened"
-        return "pending", since, 0, None
-    if state in ("firing", "recovering"):
-        count += 1
-        if count >= monitor["recovery_samples"]:
-            return "normal", None, 0, "resolved"
-        return "recovering", None, count, None
-    return "normal", None, 0, None
-
 
 def record(db, mid, aid, action, evidence):
     row=db.execute("INSERT INTO alert_history(monitor_id,alert_id,action,evidence) VALUES(%s,%s,%s,%s) RETURNING id",(mid,aid,action,Jsonb(evidence))).fetchone()
@@ -82,11 +59,6 @@ def record(db, mid, aid, action, evidence):
         from receiver.notifications import enqueue
         enqueue(db,row['id'],aid,action,evidence)
 
-
-def severity_for(m,value):
-    levels=m.get('thresholds') or [{'severity':m['severity'],'value':m['threshold']}]
-    crossed=[v['severity'] for v in levels if (value>v['value'] if m.get('comparator','above')=='above' else value<v['value'])]
-    return max(crossed,key=SEVERITIES.index) if crossed else None
 
 
 def evaluate(db, row, now, source_error=None, host_id=None):
