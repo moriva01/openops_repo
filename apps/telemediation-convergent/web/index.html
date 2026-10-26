@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TeleMediation Convergent</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#0c1422;color:#e1eaf4}body{max-width:1180px;margin:40px auto;padding:0 24px}h1{margin-bottom:8px}p{color:#a6b8ce}button,input{padding:10px;border:1px solid #405875;border-radius:6px;background:#142339;color:inherit}button{cursor:pointer}button:hover{background:#244264}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}.card{padding:18px;background:#142033;border:1px solid #29405d;border-radius:10px;margin:16px 0}strong{font-size:24px}.ok{color:#74e0b2}.bad{color:#ffb083}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:10px;border-bottom:1px solid #29405d;font-size:13px}.scroll{overflow:auto}#message{min-height:24px}label{display:block;margin:16px 0}input{width:min(450px,90%)}small{color:#9dafc7}button{margin:3px}
+</style>
+<header><small>ORIGINAL TELECOM MEDIATION LAB · SYNTHETIC USAGE RECORDS</small><h1>TeleMediation Convergent</h1><p>Voice, messaging and data. One observable mediation pipeline.</p></header>
+<label>API access token <input id="token" type="password" autocomplete="off" placeholder="Enter token for this session only"></label>
+<button id="connect">Connect</button><button id="refresh">Refresh</button><p id="message" role="status"></p>
+<div id="counts" class="grid"></div><h2>Processing services</h2><div id="services" class="grid"></div>
+<h2>Input and output portals</h2><div id="portals" class="grid"></div>
+<section class="card"><h2>Generate sample traffic</h2><p>Create one original synthetic usage record per channel. No real calls or messages are sent.</p><button id="sample">Send voice, SMS and data records</button></section>
+<section class="card scroll"><h2>Recent records</h2><table><thead><tr><th>Event</th><th>Channel</th><th>State</th><th>Output</th><th>Validation</th></tr></thead><tbody id="records"></tbody></table></section>
+<section class="card scroll"><h2>Audit trail</h2><table><thead><tr><th>Time</th><th>Action</th><th>Subject</th><th>Detail</th></tr></thead><tbody id="audit"></tbody></table></section>
+<script>
+let access='',timer;
+const $=id=>document.getElementById(id);
+function el(tag,text,cls){let e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e}
+async function api(path,body){let r=await fetch(path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+access,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});let d=await r.json();if(!r.ok)throw Error(d.error||'Request failed');return d}
+async function setting(key,value){try{await api('/api/settings',{key,value});await refresh()}catch(e){$('message').textContent=e.message}}
+function toggle(parent,label,key,state){let b=el('button',label+': '+(state?'enabled':'disabled'));b.onclick=()=>setting(key,!state);parent.append(b)}
+async function refresh(){try{let [s,r,a]=await Promise.all([api('/api/status'),api('/api/records'),api('/api/audit')]);$('message').textContent='Connected · oldest pending record: '+s.oldest_pending_age_seconds+' seconds';$('counts').replaceChildren();for(let [k,v] of Object.entries(s.records)){let c=el('div',undefined,'card');c.append(el('small',k.toUpperCase()),el('br'),el('strong',String(v)));$('counts').append(c)}$('services').replaceChildren();for(let [name,v] of Object.entries(s.services)){let c=el('div',undefined,'card');c.append(el('h3',name),el('p',v.alive?'Process heartbeat healthy':'Process heartbeat missing',v.alive?'ok':'bad'));toggle(c,'Processing',name+'.enabled',v.enabled);$('services').append(c)}$('portals').replaceChildren();for(let p of s.portals){let c=el('div',undefined,'card');c.append(el('h3',p.kind.toUpperCase()),el('p','Route → '+p.route));toggle(c,'Input','input.'+p.kind,p.input_enabled);toggle(c,'Output','output.'+p.kind,p.output_enabled);$('portals').append(c)}for(let [target,rows,cols] of [['records',r.records,['event_id','kind','status','output_portal','error']],['audit',a.events,['timestamp','action','subject','detail']]]){let dst=$(target);dst.replaceChildren();for(let row of rows){let tr=el('tr');for(let col of cols)tr.append(el('td',col==='timestamp'?new Date(row[col]*1000).toLocaleTimeString():String(row[col]??'—')));dst.append(tr)}}}catch(e){$('message').textContent='Connection error: '+e.message}}
+$('connect').onclick=()=>{access=$('token').value;$('token').value='';clearInterval(timer);refresh();timer=setInterval(refresh,5000)};$('refresh').onclick=refresh;
+$('sample').onclick=async()=>{try{for(let k of ['voice','sms','data']){let b={event_id:'demo-'+k+'-'+Date.now()+'-'+Math.random().toString(16).slice(2),subscriber_id:'synthetic-subscriber-001',occurred_at:new Date().toISOString()};b[{voice:'duration_seconds',sms:'message_count',data:'bytes_used'}[k]]={voice:45,sms:1,data:1048576}[k];await api('/api/inputs/'+k,b)}await refresh()}catch(e){$('message').textContent=e.message}};
+</script></html>

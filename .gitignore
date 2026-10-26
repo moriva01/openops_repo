@@ -1,0 +1,13 @@
+**/.env
+**/.env.*
+!**/.env.example
+**/.local/
+**/__pycache__/
+**/*.pyc
+**/var/
+**/dist/
+**/logs/
+**/*.sqlite3*
+**/*.pem
+**/*.key
+third_party/

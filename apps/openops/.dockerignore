@@ -1,0 +1,6 @@
+*
+!requirements.txt
+!receiver/
+!receiver/**
+!tests/
+!tests/**
