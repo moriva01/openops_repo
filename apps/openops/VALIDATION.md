@@ -41,3 +41,9 @@ AI portal smoke checks also passed at 1440px and 600px: completed report, suppor
 Production retained its original telemetry, Alert 1 and both completed investigation reports. Only username admin exists. A private database dump preceded migration. Live ingestion and Zetaris evaluation remained healthy.
 
 Headless Chrome checked all five independent sections, existing per-alert investigation, all six admin forms, and 1440px/600px/390px layouts without JavaScript errors or page overflow. Screenshots were reviewed locally. No external notification destination was configured. Real email/SMS provider delivery is not claimed.
+
+## Live webhook circuit
+
+The optional local webhook connector subsequently delivered Alert 2 opening (`warning`) and recovery (`clear`), both at the first attempt. The inbox persisted both transitions under the same alert ID. Actual VOICE disablement and recovery traveled through the monitored application, collector, PostgreSQL, Zetaris, monitor, notification outbox and authenticated receiver. Automatic Nightshift investigation also completed with three NVIDIA receipts. Acknowledgement preserved the active incident until real recovery.
+
+35 automated tests passed, followed by targeted inbox regression tests and an authenticated live duplicate replay. Final state is normal with an empty VOICE queue and output enabled. See [full circuit evidence and reproduction](../../docs/12-webhook-circuit-demo.md). No external provider destination or email/SMS delivery was used.

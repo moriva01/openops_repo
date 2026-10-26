@@ -1,0 +1,18 @@
+services:
+  webhook-demo:
+    image: openops-receiver:latest
+    restart: unless-stopped
+    command: ["python", "-m", "receiver.webhook_demo"]
+    env_file:
+      - .local/webhook-demo.env
+    ports:
+      - "127.0.0.1:8097:8097"
+    volumes:
+      - webhook-demo-data:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8097/health/live',timeout=3)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  webhook-demo-data:
