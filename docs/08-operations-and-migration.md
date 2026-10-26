@@ -12,12 +12,20 @@ This is a maintenance-window procedure, not an action performed automatically by
 
 1. Verify services, volumes and existing credentials. Back up the database, logs and private configuration.
 2. Privately copy the original `.env` to `apps/openops/.env` and required `.local` settings to `apps/openops/.local`, outside Git. Preserve current secrets. Old private screenshots/browser tests are optional, not source material.
-3. Compare variable names without printing values. Older files may omit `OPENOPS_HOST_ID`; Compose defaults to `tmc-lab-01`. Review `.local/zetaris.env` and addresses.
+3. Compare variable names without printing values. Set `OPENOPS_HOST_ID` explicitly to the current collector identity before recreating an existing deployment; a missing variable now defaults to `tmc-lab-01`. Changing example names does not migrate a running collector. Review `.local/zetaris.env` and addresses.
 4. From `apps/openops`, run `docker compose up -d --build`. The `openops` project reuses its volumes and recreates the receiver from this source. Brief interruptions should be covered by the collector spool.
 5. Restore network attachment with `scripts/start_monitoring.ps1` if needed. Moving a checkout does not require regenerating the datasource or password.
 6. Verify health, ingestion, Zetaris queries and monitor state. Thereafter, operate Compose from only this checkout.
 
 Do not use `down -v` or delete databases/settings to solve a migration. The Linux application does not need reinstallation just because the Windows repository moved.
+
+## Neutral deployment identities
+
+New installations use `tmc-lab-01` as the collector identity and `telemediation-01` as the example hostname. Existing runtime identities and stored observations are not rewritten by a source/documentation update.
+
+If changing an existing deployment identity, first drain the collector spool against its current receiver configuration. Stop the collector, then coordinate `COLLECTOR_HOST_ID` on Linux with `OPENOPS_HOST_ID` in the monitoring environment. Recreate the receiver with the matching value before restarting collection. A mismatched identity is rejected; do not delete queued observations to bypass it.
+
+Changing the Linux hostname is a separate administrator action, for example `sudo hostnamectl set-hostname telemediation-01`. Review SSH, networking and other host consumers first. Historical observations retain their recorded identity; do not include private historical exports in public demonstration material.
 
 ## Backups
 
