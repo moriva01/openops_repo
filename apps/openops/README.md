@@ -1,6 +1,6 @@
 # OpenOps Evidence — monitoring receiver
 
-Current implementation: authenticated telemetry receiver, independent PostgreSQL storage, a registered read-only Zetaris datasource, deterministic monitoring and an English operations portal. Meterless investigation and notifications are not implemented in this component yet. TeleMediation and the collector are separate original applications under `../telemediation-convergent`.
+Current implementation: authenticated telemetry receiver, independent PostgreSQL storage, a registered read-only Zetaris datasource, deterministic monitoring and an English operations portal. Meterless Nightshift investigation uses persistent World Model evidence, bounded tools and evaluator review. Notifications remain unimplemented. TeleMediation and the collector are separate original applications under `../telemediation-convergent`.
 
 ## Start on the monitoring node
 
@@ -32,7 +32,7 @@ Default monitor: voice pending > 0 for 60 observed seconds, warning severity, re
 
 Samples more than 60 seconds old are no-data. Failed queries, missing metrics and unreachable application data do not resolve existing alerts. Repeated or out-of-order samples do not advance timers or recovery counters. A gap longer than 60 seconds resets a pending duration and recovery counter. Disabling a monitor preserves an open alert; redefinition of its condition is refused while that alert remains open. No automated notification or remedial action occurs.
 
-API additions: `GET /api/dashboard` (read/operator); `POST /api/monitors/configure` and `POST /api/alerts/acknowledge` (operator only). Configuration and history persist across process restarts. Notifications, explicit no-data alerts, multi-host enrollment, incident correlation and AI investigation remain pending.
+API additions: `GET /api/dashboard` (read/operator); `POST /api/monitors/configure` and `POST /api/alerts/acknowledge` (operator only). Configuration and history persist across process restarts. Notifications, explicit no-data alerts, multi-host enrollment, incident correlation remain pending. Add AI investigation from an alert; inspect reports and traces under AI investigations. See [integration setup](../../docs/10-ai-investigation.md).
 
 ## Collector connection
 

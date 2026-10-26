@@ -16,19 +16,17 @@ An original operations platform for small IT teams and managed service providers
 
 ## Deployment
 
-Machine A runs the application and collector as unprivileged systemd services. Machine B runs Docker Desktop, the monitoring stack and Zetaris. Nightshift is installed separately as the planned AI provider. Model execution can use hosted NVIDIA endpoints without a local GPU.
+Machine A runs the application and collector as unprivileged systemd services. Machine B runs Docker Desktop, the monitoring stack and Zetaris. Nightshift is installed separately as the active AI runtime. Model execution can use hosted NVIDIA endpoints without a local GPU.
 
 Machine names and IDs are neutral deployment examples: telemediation-01 / tmc-lab-01. Use isolated lab data and documented interfaces.
 
-## Next implementation stages
+## Remaining implementation stages
 
-1. Implement Meterless World Model services for entities, observations, relationships and grounded context.
-2. Integrate Nightshift through an injected model adapter.
-3. Add bounded read-only investigation and one critique/revision step.
-4. Validate citations and uncertainty; distinguish a supported hypothesis from proven causation.
-5. Add webhook delivery, retries and delivery history.
-6. Evaluate a known incident, a distractor and insufficient evidence; measure outcomes rather than inventing improvements.
-7. Complete clean-setup verification, demo video, slides and submission.
+World Model persistence, Nightshift generation, bounded investigation, citation validation and critique are implemented. A real historical incident was analyzed with NVIDIA receipts.
+
+1. Add webhook delivery, retries and delivery history.
+2. Expand live evaluation to distractors and insufficient evidence; measure outcomes rather than inventing improvements.
+3. Complete clean-setup verification, demo video, slides and submission.
 
 ## Boundaries
 

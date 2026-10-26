@@ -12,7 +12,7 @@
 | `OPENOPS_ZETARIS_DB_PASSWORD` | B: `.env` and provider datasource registration | Zetaris -> PostgreSQL | SELECT on `monitor_samples` |
 | Zetaris login | B: `.local/zetaris.env` | UI-proxy adapter | SQL through configured account |
 | Image registry login | Private Docker credential storage | Docker pull | Download Zetaris images |
-| Nightshift Runtime token | Private Console/runtime state | AI checks; future integration | Access local runtime |
+| Nightshift Runtime token | Private Console/runtime state | Bounded investigation worker | Access local runtime |
 | NVIDIA key | Nightshift Providers | Nightshift -> NVIDIA | Hosted models under provider terms |
 
 No real credentials belong in the repository. They are not interchangeable. A never needs model keys, the PostgreSQL password or Zetaris login.
@@ -55,7 +55,7 @@ Response after commit: `{"accepted_event_ids":["UUID"],"inserted":1,"duplicates"
 
 Datasource `openops_pg`; internal URL `jdbc:postgresql://openops-db-1:5432/openops`; driver `org.postgresql.Driver`; restricted user `openops_zetaris`. The Zetaris driver shares the Docker network; the database has no published port.
 
-The view exposes event/host IDs, observation epoch, CPU/memory/disk, application reachability, pending age, throughput, rejection total and VOICE output pending/enabled. Original payloads retain additional telemetry, but this first view does not expose every SMS/data/service metric.
+The view exposes event/host IDs, observation epoch, CPU/memory/disk, application reachability, pending age, throughput, rejection total and VOICE output pending/enabled. The investigation view also exposes API/mediation/delivery process states, SMS/data pending counts and SMS/data output enablement. Refresh the registered datasource after updating the view.
 
 Evaluation query:
 

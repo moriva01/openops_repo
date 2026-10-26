@@ -22,6 +22,7 @@ services:
         condition: service_healthy
     env_file:
       - .local/zetaris.env
+      - .local/nightshift.env
     environment:
       PGHOST: db
       PGDATABASE: openops
@@ -32,6 +33,7 @@ services:
       OPENOPS_HOST_ID: ${OPENOPS_HOST_ID:-tmc-lab-01}
       OPENOPS_ADMIN_TOKEN: ${OPENOPS_ADMIN_TOKEN}
       OPENOPS_ZETARIS_DB_PASSWORD: ${OPENOPS_ZETARIS_DB_PASSWORD}
+      OPENOPS_INVESTIGATION_ENABLED: ${OPENOPS_INVESTIGATION_ENABLED:-true}
     ports:
       - "${OPENOPS_BIND_IP:-192.168.1.17}:8096:8096"
     volumes:

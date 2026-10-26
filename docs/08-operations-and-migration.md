@@ -2,13 +2,13 @@
 
 ## Consolidated source versus running deployment
 
-This checkout is the consolidated source for future changes. Copying source does not move containers, databases or private settings. The existing lab runs images built from the earlier `openops-evidence` directory; Linux services use `/opt/telemediation-convergent`.
+This checkout is the consolidated source for future changes. Copying source does not move containers, databases or private settings. The lab receiver now runs from this checkout after preserving its private credentials, host binding and existing volumes. Linux services use `/opt/telemediation-convergent`.
 
 Both OpenOps checkouts declare the same Compose project `openops`, container names and volumes. They are not independent deployments on the same port. Never generate new passwords and apply them to an existing database volume: changing `.env` does not change its stored PostgreSQL password.
 
 ## Move the existing monitoring deployment to this checkout
 
-This is a maintenance-window procedure, not an action performed automatically by repository consolidation.
+This procedure was applied during AI integration. Use it when moving another existing deployment.
 
 1. Verify services, volumes and existing credentials. Back up the database, logs and private configuration.
 2. Privately copy the original `.env` to `apps/openops/.env` and required `.local` settings to `apps/openops/.local`, outside Git. Preserve current secrets. Old private screenshots/browser tests are optional, not source material.
@@ -59,4 +59,4 @@ Rotation is not automated. Update both ends of a credential and restart/recreate
 
 ## Future development
 
-Meterless/World Model investigation, hypothesis evaluation, notifications and additional monitors. Begin changes in this checkout, preserve tests and update implementation status. Do not present planned capabilities as working features.
+Notifications, additional monitors and broader live evaluation. Meterless investigation and hypothesis evaluation are implemented; see [AI integration](10-ai-investigation.md). Begin changes in this checkout, preserve tests and update implementation status. Do not present planned capabilities as working features.

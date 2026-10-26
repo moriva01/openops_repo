@@ -25,12 +25,17 @@ flowchart LR
     P[(Application PostgreSQL)]
     V[monitor_samples view]
     Z[Zetaris Docker stack]
-    N[Native Nightshift - not integrated yet]
+    N[Native Nightshift runtime]
+    W[Persistent World Model and investigation worker]
     R --> P
     P --> V
     Z -->|Read-only JDBC| V
     R -->|SQL through UI proxy| Z
     Z -->|Results| R
+    R --> W
+    W -->|Read-only evidence queries| Z
+    W -->|Planner / investigator / evaluator| N
+    W --> P
   end
   Q -->|Authenticated batch POST| R
   R -->|IDs acknowledged after commit| C
@@ -70,6 +75,6 @@ Repeated or out-of-order observations do not advance counters. Samples older tha
 
 Resolution means the condition became healthy again. The platform does not enable portals, restart processes or delete queues to repair them. An operator performed the TeleMediation actions in the demonstration.
 
-## Planned AI role
+## AI investigation
 
-World Model will organize entities, dependencies and evidence; Nightshift will execute investigation and critique. This flow is not implemented. Earlier design documents describe intent rather than current execution.
+World Model organizes entities, declared dependencies and source-linked evidence. Nightshift executes bounded planning, investigation and critique. The worker runs independently of the browser, reports failures explicitly and performs no remediation. See [AI integration](10-ai-investigation.md) for the implemented subset, budget and trace contract.

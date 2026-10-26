@@ -26,7 +26,7 @@ The lab Windows computer has approximately 28 GB physical RAM. Docker reported 4
 | Windows -> Zetaris API | 8888/8889 | Provider API and diagnostics | Current publication is loopback |
 | Windows -> Zetaris driver | 10000 | Optional client JDBC | Loopback; OpenOps does not use it |
 | Windows -> Spark UI | 4040 | Provider diagnostics | Loopback |
-| Future OpenOps -> Nightshift | 8088 | AI runtime/API | Local; not integrated yet |
+| OpenOps -> Nightshift | 8088 | AI runtime/API | Docker host gateway; Runtime token |
 
 Zetaris's internal PostgreSQL is not OpenOps storage. Random provider diagnostic ports are not stable integration addresses.
 

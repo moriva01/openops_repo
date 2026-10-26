@@ -12,7 +12,7 @@ import uuid
 import psycopg
 from psycopg.types.json import Jsonb
 from psycopg.rows import dict_row
-from receiver import monitoring
+from receiver import monitoring, investigation
 
 LOCK = threading.Lock()
 SCHEMA = """
@@ -38,6 +38,7 @@ def initialize():
     with connection() as db:
         db.execute(SCHEMA)
         monitoring.initialize(db)
+        investigation.initialize(db)
 
 
 def log(action, **fields):
@@ -137,7 +138,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = urlsplit(self.path).path
-        if path in ("/api/monitors/configure", "/api/alerts/acknowledge"):
+        if path in ("/api/monitors/configure", "/api/alerts/acknowledge", "/api/investigations/start"):
             if not self.authorized("OPENOPS_ADMIN_TOKEN"):
                 self.reply(403, {"error": "Operator credential required"})
                 return
@@ -148,11 +149,13 @@ class Handler(BaseHTTPRequestHandler):
                 body = json.loads(self.rfile.read(size))
                 with connection() as db:
                     db.row_factory = dict_row
-                    if path.endswith("configure"):
+                    if path == "/api/investigations/start":
+                        run_id = investigation.enqueue(db,int(body["alert_id"]),body.get("retry") is True,body.get('new_run') is True)
+                    elif path.endswith("configure"):
                         monitoring.configure(db, body)
                     else:
                         monitoring.acknowledge(db, int(body["id"]))
-                self.reply(200, {"status": "updated"})
+                self.reply(200, {"status": "updated", **({"run_id":run_id} if path=="/api/investigations/start" else {})})
             except (ValueError,TypeError,KeyError,OverflowError):
                 self.reply(400, {"error": "Invalid change; active alert conditions cannot be redefined"})
             except psycopg.Error:
@@ -212,7 +215,25 @@ class Handler(BaseHTTPRequestHandler):
             with connection() as db:
                 if path == "/api/dashboard":
                     db.row_factory = dict_row
-                    self.reply(200, monitoring.dashboard(db))
+                    result=monitoring.dashboard(db)
+                    result["investigations"]=db.execute("SELECT id,alert_id,status,attempts,created_at,finished_at,error_type FROM investigations ORDER BY created_at DESC LIMIT 30").fetchall()
+                    self.reply(200, result)
+                elif path.startswith("/api/investigations/"):
+                    db.row_factory=dict_row
+                    run_id=path.rsplit("/",1)[1]
+                    result=db.execute("SELECT * FROM investigations WHERE id=%s",(run_id,)).fetchone()
+                    if result:
+                        result["trace"]=db.execute("SELECT happened_at,action,detail FROM investigation_trace WHERE run_id=%s ORDER BY id",(run_id,)).fetchall()
+                    self.reply(200 if result else 404,result or {"error":"Unknown investigation"})
+                elif path.startswith("/api/world/"):
+                    db.row_factory=dict_row
+                    run_id=path.rsplit("/",1)[1]
+                    item=db.execute("SELECT a.opening_evidence,i.attempts,i.manifest FROM investigations i JOIN alerts a ON a.id=i.alert_id WHERE i.id=%s",(run_id,)).fetchone()
+                    if item:
+                        key=(item['manifest'] or {}).get('world_context_key',run_id+':attempt:'+str(item['attempts']))
+                        result=investigation.ContextBuilderService(investigation.WorldStoreService(db)).build(key,float(item["opening_evidence"]["observed_epoch"]))
+                        self.reply(200,result)
+                    else:self.reply(404,{"error":"Unknown investigation"})
                 elif path == "/api/hosts":
                     rows = db.execute("""SELECT host_id, count(*) samples, max(observed_at) latest_observed_at,
                         max(received_at) latest_received_at,
@@ -241,6 +262,8 @@ def main():
     log("receiver.started", schema_version=1)
     if os.environ.get("OPENOPS_MONITOR_ENABLED", "true") == "true":
         threading.Thread(target=monitoring.loop,args=(connection,log),daemon=True).start()
+    if os.environ.get("OPENOPS_INVESTIGATION_ENABLED", "false") == "true":
+        threading.Thread(target=investigation.loop,args=(connection,log),daemon=True).start()
     ThreadingHTTPServer(("0.0.0.0", int(os.environ.get("OPENOPS_PORT", "8096"))), Handler).serve_forever()
 
 

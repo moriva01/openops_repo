@@ -2,7 +2,7 @@
 
 ## Automated
 
-Eight tests passed against real PostgreSQL, with test data isolated in temporary schemas. Coverage: ingestion/authenticated readback, exact retries, conflicting-ID batch rollback, malformed/incorrect-host data, sustained violations, acknowledgement, distinct-sample recovery, stale/query-failure behavior, gap reset and disabled-monitor preservation.
+Twenty-two tests passed against real PostgreSQL, with test data isolated in temporary schemas. Coverage: ingestion/authenticated readback, exact retries, conflicting-ID batch rollback, malformed/incorrect-host data, sustained violations, acknowledgement, distinct-sample recovery, stale/query-failure behavior, gap reset and disabled-monitor preservation.
 
 Browser smoke checks passed in isolated headless Chrome: operator login, live dashboard, acknowledgement action, no JavaScript errors, and no horizontal page overflow at a 600px viewport. Desktop and mobile screenshots reviewed locally. Access tokens were not included in screenshots.
 
@@ -22,4 +22,14 @@ Browser smoke checks passed in isolated headless Chrome: operator login, live da
 
 ## Limits
 
-This validates one monitor and one real incident, not production reliability or a complete operations platform. Dashboard charts read PostgreSQL directly; monitor evaluation retrieves through Zetaris. Meterless investigation, incident correlation, notifications, multi-host operation and broader monitor management remain future work. No AI claim is made for the deterministic alert evaluator.
+This validates one monitor and one real incident, not production reliability or a complete operations platform. Dashboard charts read PostgreSQL directly; monitor evaluation retrieves through Zetaris. Incident correlation, notifications, multi-host operation and broader monitor management remain future work. No AI claim is made for the deterministic alert evaluator.
+
+## Real AI investigation
+
+Run `inv_4878c739484741e0828722bb892fc3a0` analyzed the retained Alert 1 incident through Zetaris timeline and portal-service tools. It identified disabled VOICE output with active processes and cited four source observations. The evaluator returned `supported` with no issues; this remains a supported hypothesis, not proof of causation. No remediation occurred.
+
+Nightshift routed three calls to NVIDIA `nvidia/nemotron-3.5-bolt-e4b`: planner receipt `rcpt_req_vlir22sz`, investigator `rcpt_req_et407tlj`, evaluator `rcpt_req_ux33k6ns`. Recorded generation durations were 2944, 10495 and 1381 milliseconds. Earlier timeout, malformed-report and provider failures remain in traces; no successful analysis is claimed for those attempts. A previous report was preserved when creating this analysis.
+
+Fourteen investigation tests cover citation contracts, abstention, context isolation, idempotent ingestion, transaction rollback, tool execution, bounded revision, queue deduplication, preserved reports, retry limits and provider failure without fabricated results. These supplement eight receiver/monitor tests.
+
+AI portal smoke checks also passed at 1440px and 600px: completed report, supported evaluator verdict, zero JavaScript errors and no horizontal overflow. The mobile screenshot was visually reviewed.

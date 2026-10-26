@@ -16,6 +16,7 @@ The system uses two independent machines: one runs a synthetic telecom mediation
 8. [Acceptance tests and troubleshooting](docs/07-testing-and-troubleshooting.md).
 9. [Operations, backups and deployment migration](docs/08-operations-and-migration.md).
 10. [Repository validation](docs/09-repository-validation.md).
+11. [Meterless investigation and shared world state](docs/10-ai-investigation.md).
 
 ## Repository layout
 
@@ -33,7 +34,7 @@ Each application retains its technical README, scripts and tests. Planning files
 
 Real host telemetry; synthetic voice/SMS/data mediation; durable collector spool; authenticated ingestion; independent PostgreSQL storage; a read-only Zetaris datasource; a configurable monitor; charts; and an alert lifecycle with acknowledgement and automatic recovery verification.
 
-**AI investigation, incident correlation, notifications and automatic remediation are not implemented yet.** Nightshift/NVIDIA was installed and tested separately in the lab; OpenOps does not call it yet. A resolved alert does not mean the platform performed a repair.
+AI investigation now retrieves evidence through Zetaris and uses a persistent minimal World Model implementation with planner, investigator and evaluator calls through Nightshift. Reports retain citations, uncertainty and provider receipts. See the integration guide for boundaries and validation. Incident correlation, notifications and automatic remediation remain unimplemented. A resolved alert does not mean the platform performed a repair.
 
 ## Excluded material
 

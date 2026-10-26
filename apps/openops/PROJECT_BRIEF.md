@@ -16,7 +16,7 @@ Zetaris exposes a read-only view of the telemetry database and returns the obser
 
 ## Planned AI contribution
 
-Meterless World Model will maintain grounded entities, observations and relationships. Nightshift will supply model execution through an injected adapter, with NVIDIA models where useful. Nightshift connectivity was tested separately; investigation is not implemented in OpenOps yet.
+A minimal Meterless World Model adaptation maintains grounded entities, observations and declared relationships. Nightshift supplies real NVIDIA generation through an injected adapter. Bounded planner, investigator and evaluator calls produce cited hypotheses, alternatives and missing-evidence checks. No repair is executed.
 
 ## Investigation design
 

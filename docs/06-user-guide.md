@@ -47,3 +47,9 @@ This demonstration requires no service termination or firewall changes. Re-enabl
 ## Not available yet
 
 The portal does not investigate with an LLM, infer root cause, send email/webhooks/SMS, restart applications, provide full inventory management or create multiple monitors through its UI. These are planned features, not current capabilities.
+
+## Investigate an incident
+
+Select **Investigate** beside an alert. The background worker retrieves incident-window evidence through Zetaris and requests bounded planning, investigation and evaluation through Nightshift. Select the run under **AI investigations** to read hypotheses, alternatives, missing evidence, citations, receipts and execution trace. Resolved alerts produce historical analyses.
+
+**New analysis** retains earlier reports. At most three runs per alert and three attempts per run are allowed. Failed requests require explicit retry. A report never performs a repair; operator review remains necessary. See [integration details](10-ai-investigation.md).

@@ -16,7 +16,14 @@ extract(epoch FROM observed_at)::double precision AS observed_epoch,
 (payload#>>'{application,delivered_last_60_seconds}')::double precision AS throughput,
 (payload#>>'{application,records,rejected}')::double precision AS rejected_total,
 (SELECT (p->>'pending_output')::double precision FROM jsonb_array_elements(payload#>'{application,portals}') p WHERE p->>'kind'='voice') AS voice_pending,
-(SELECT (p->>'output_enabled')::boolean FROM jsonb_array_elements(payload#>'{application,portals}') p WHERE p->>'kind'='voice') AS voice_output_enabled
+(SELECT (p->>'output_enabled')::boolean FROM jsonb_array_elements(payload#>'{application,portals}') p WHERE p->>'kind'='voice') AS voice_output_enabled,
+(payload#>>'{systemd_units,tmc-api}')::text AS api_process,
+(payload#>>'{systemd_units,tmc-mediation}')::text AS mediation_process,
+(payload#>>'{systemd_units,tmc-delivery}')::text AS delivery_process,
+(SELECT (p->>'pending_output')::double precision FROM jsonb_array_elements(payload#>'{application,portals}') p WHERE p->>'kind'='sms') AS sms_pending,
+(SELECT (p->>'pending_output')::double precision FROM jsonb_array_elements(payload#>'{application,portals}') p WHERE p->>'kind'='data') AS data_pending,
+(SELECT (p->>'output_enabled')::boolean FROM jsonb_array_elements(payload#>'{application,portals}') p WHERE p->>'kind'='sms') AS sms_output_enabled,
+(SELECT (p->>'output_enabled')::boolean FROM jsonb_array_elements(payload#>'{application,portals}') p WHERE p->>'kind'='data') AS data_output_enabled
 FROM telemetry_events"""
 
 def main():
@@ -51,8 +58,9 @@ def main():
         print("Registering monitor_samples view metadata")
         result = ADAPTER.query('REGISTER DATASOURCE TABLE "monitor_samples" FROM openops_pg')
         print("View registration:", str(result.get("data", []))[:400])
-    result = ADAPTER.query("SELECT * FROM openops_pg.monitor_samples ORDER BY observed_epoch DESC LIMIT 1", 1)
-    print("Latest sample:", str(result)[:2000])
+    ADAPTER.query('REFRESH DATASOURCE TABLES FROM openops_pg')
+    result = ADAPTER.query("SELECT event_id,voice_pending,delivery_process FROM openops_pg.monitor_samples ORDER BY observed_epoch DESC LIMIT 1", 1)
+    print("Live source verified; returned rows:",len(result.get('data',[])))
 
 if __name__ == "__main__":
     main()

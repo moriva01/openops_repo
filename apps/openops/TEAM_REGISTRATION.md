@@ -8,7 +8,7 @@ OpenOps Evidence
 
 ## Description draft
 
-Solo builder creating an independent open-source operations platform for small IT teams. OpenOps Evidence collects host and application telemetry, detects sustained failures and verifies recovery. Zetaris provides the query layer. Planned Meterless-powered investigation will compare incident hypotheses and produce explanations with cited evidence, uncertainty and practical next checks. The demonstration uses an original synthetic telecom mediation application.
+Solo builder creating an independent open-source operations platform for small IT teams. OpenOps Evidence collects host and application telemetry, detects sustained failures and verifies recovery. Zetaris provides the query layer. Meterless-powered investigation compares incident hypotheses and produce explanations with cited evidence, uncertainty and practical next checks. The demonstration uses an original synthetic telecom mediation application.
 
 ## Registration guidance
 

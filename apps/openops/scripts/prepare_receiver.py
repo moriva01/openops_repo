@@ -44,6 +44,9 @@ def main():
     if not destination.exists():
         destination.write_text('COLLECTOR_INGEST_URL=http://' + settings['OPENOPS_BIND_IP'] + ':8096/api/ingest\n'
             'COLLECTOR_INGEST_TOKEN=' + settings['OPENOPS_INGEST_TOKEN'] + '\n')
+    nightshift = local / 'nightshift.env'
+    if not nightshift.exists():
+        nightshift.write_text('METERLESS_BASE_URL=http://host.docker.internal:8088/v1\nMETERLESS_RUNTIME_TOKEN=\nMETERLESS_MODEL=meterless/auto\n')
     print('Private runtime files ready; credentials omitted. Existing files preserved.')
 
 

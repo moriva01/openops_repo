@@ -2,10 +2,13 @@
 import ast
 from pathlib import Path
 import re
+import subprocess
 
 root = Path(__file__).resolve().parents[1]
 errors = []
-files = [p for p in root.rglob('*') if p.is_file() and not any(part in ('.git','__pycache__','dist') for part in p.relative_to(root).parts)]
+# Inspect publishable files; ignored local deployment settings remain private.
+names = subprocess.check_output(['git','ls-files','--cached','--others','--exclude-standard','-z'],cwd=root).decode().split('\0')
+files = [root / name for name in set(names) if name and (root / name).is_file()]
 for path in files:
     relative = path.relative_to(root)
     if path.name == '.env' or '.local' in relative.parts or path.suffix in ('.sqlite3','.key','.pem'):

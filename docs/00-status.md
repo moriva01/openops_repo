@@ -16,8 +16,8 @@ The real two-machine test opened an alert, acknowledged it without resolving it,
 
 ## AI and remaining work
 
-Nightshift 1.2.7 answered a separate request using NVIDIA `nvidia/nemotron-3.5-bolt-e4b`. This proves provider connectivity, not AI integration in OpenOps.
+OpenOps now calls Nightshift from its investigation worker, with an injected generator, tool selection, report validation and critique. It implements persistent WorldStoreService, IngestPipelineService and ContextBuilderService from the minimal World Model reference architecture. Advanced engine features are explicitly excluded in the run manifest. See [the integration guide](10-ai-investigation.md).
 
-Remaining work: implement Meterless World Model Engine, investigation and critique through Nightshift, incident correlation, webhooks/email/SMS, escalation, multiple hosts, RBAC, user authentication, TLS and production hardening. The platform does not automatically repair application services.
+Remaining work: incident correlation, webhooks/email/SMS, escalation, multiple hosts, RBAC, user authentication, TLS and production hardening. The platform does not automatically repair application services.
 
 The product name and commercial assumptions remain proposals. No production telecom-interface compatibility is claimed.

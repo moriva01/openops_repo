@@ -82,4 +82,4 @@ Local diagnostics without displaying secrets:
 & "$env:LOCALAPPDATA\Nightshift\cli\ns.cmd" discover --json
 ```
 
-A healthy runtime or model catalog does not prove generation. Run a real text request and check its receipt's routed model. This was tested separately in the lab, but OpenOps does not call Nightshift or implement World Model yet. Do not put NVIDIA keys in OpenOps `.env` or on A.
+A healthy runtime or model catalog does not prove generation. Run a real text request and check its receipt's routed model. OpenOps now calls Nightshift and persists a minimal World Model. Follow [AI integration setup](10-ai-investigation.md), including `prepare_nightshift.py`, receiver rebuild and datasource-view refresh. Do not put NVIDIA keys in OpenOps `.env` or on A.
