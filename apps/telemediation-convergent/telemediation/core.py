@@ -1,4 +1,4 @@
-"""Durable ingestion, mediation and delivery, independent of proprietary formats."""
+"""Durable ingestion, mediation and delivery using an original usage schema."""
 import hashlib
 import json
 import os

@@ -3,7 +3,7 @@
 Validated on October 26, 2026 from `hackaton/openops_repo`:
 
 - 12 TeleMediation/collector tests passed using the consolidated source.
-- Both tar.gz packages were generated and their SHA-256 matched the previous source version.
+- Both tar.gz packages can be regenerated from source; they were rebuilt after documentation and deployment-identity updates.
 - The OpenOps image built from `apps/openops` without private files in its build context.
 - 8 receiver/monitor tests passed in a container from that image, using temporary schemas in real PostgreSQL.
 - Preparation scripts passed tests in a temporary directory with dummy credentials, custom address/host and preservation of existing secrets.

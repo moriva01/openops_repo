@@ -7,5 +7,6 @@
 - Psycopg and its binary distribution retain their upstream licenses and notices. They are installed at image build time from `requirements.txt`.
 - The Python base image, Docker Desktop, Zetaris and Meterless/Nightshift retain independent terms. MIT client code grants no rights to those products and does not guarantee free service usage.
 - The Zetaris adapter uses documented interfaces; it does not incorporate the Zetaris engine or its libraries.
+- Telecom records are synthetic and use an original schema.
 
 References: https://www.postgresql.org/about/licence/ · https://www.psycopg.org/ · https://github.com/zetaris/getting-started · https://meterless.ai/

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Standalone Linux installation using dedicated application paths.
 set -euo pipefail
 [[ $EUID -eq 0 ]] || { echo 'Run with sudo bash scripts/install.sh'; exit 1; }
 command -v python3 >/dev/null || { echo 'Python 3.9+ is required'; exit 1; }

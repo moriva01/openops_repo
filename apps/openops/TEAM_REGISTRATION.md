@@ -1,23 +1,22 @@
-# OpenOps Evidence — solo team registration
+# OpenOps Evidence — individual team
 
-Status: user confirmed team creation on 26 October 2026. Platform membership and submission access have not been independently inspected.
+Team creation was confirmed by the builder. The account and submission form have not been independently audited.
 
-## Team Name
+## Team name
 
 OpenOps Evidence
 
-## Description — paste into the form
+## Description draft
 
+Solo builder creating an independent open-source operations platform for small IT teams. OpenOps Evidence collects host and application telemetry, detects sustained failures and verifies recovery. Zetaris provides the query layer. Planned Meterless-powered investigation will compare incident hypotheses and produce explanations with cited evidence, uncertainty and practical next checks. The demonstration uses an original synthetic telecom mediation application.
 
-## Other fields
+## Registration guidance
 
-- Team Image: leave empty; optional.
-- Who's in your team?: leave empty; invite nobody. Verify after creation that Ivan is the only member.
-- Needed Roles: leave empty; this is a solo entry.
-- Current Tech Stack: Python (initial implementation), Zetaris and Meterless (planned integrations). If this field only accepts technologies already connected, enter Python and add sponsors after validation.
+- Team image is optional.
+- Do not invite additional members for an individual entry.
+- No additional roles are requested.
+- List only technologies accurately used in the submission.
+- Suggested use cases: IT operations, incident management and observability; choose the nearest available labels.
+- Proposed primary challenge category: The Agent That Can Explain Why. Confirm final eligibility and requirements on the official event page.
 
-Team names cannot be changed after creation, according to the supplied form.
-
-## After pressing Create Team
-
-
+Creating a team is not submitting a project. Review the exact submission fields, integration evidence and required deliverables before final submission. Team names cannot be changed after creation according to the supplied form.

@@ -60,3 +60,4 @@ Only explicitly acknowledged events are removed. Batches contain up to 50 sample
 
 ## Boundaries
 
+The collector reads Linux host metrics and this application's documented API. No subscriber IDs, usage bodies, tokens or environment snapshots are transmitted. Only the three named systemd units are queried. Arbitrary service discovery, log-file tailing, NIC-level traffic measurement, remote command execution and remedial actions are outside this first version. Access to the telemetry spool is restricted to its service user/root. Hostnames and operational status are part of the telemetry.

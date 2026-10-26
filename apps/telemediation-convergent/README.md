@@ -1,5 +1,6 @@
 # TeleMediation Convergent
 
+Original open-source telecom mediation **laboratory**, written in English, using Python 3.9+ and SQLite. No third-party Python dependencies. MIT licensed. The application uses an original usage-record schema and synthetic lab data.
 
 This application mediates synthetic usage records, not live telecom traffic. It does not implement SIP, Diameter, SMPP, 3GPP charging interfaces, carrier billing, real calls, real SMS or network convergence. Convergence here means an original common usage schema and subscriber-level view across voice, messaging and data, with unlike quantities kept separate. Subscriber hashes are stable pseudonyms, not anonymization.
 
@@ -94,6 +95,7 @@ Run `python3 scripts/send_traffic.py --batches 30 --interval 1` with the same to
 4. Process failure: stop `tmc-mediation`. After 15 seconds its heartbeat becomes stale. Distinguish this from scenario 3.
 5. Invalid record: submit a negative duration; mediation rejects it and preserves the error and audit trail.
 
+Fault controls apply only to this application. Our future monitoring platform consumes these APIs and host metrics; this package does not implement Zetaris, AI investigation or alert notification.
 
 ## Validate and package
 

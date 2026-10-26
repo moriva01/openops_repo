@@ -42,7 +42,7 @@ sudo systemctl status tmc-api tmc-mediation tmc-delivery --no-pager
 curl http://127.0.0.1:8095/health/live
 ```
 
-Source is installed at `/opt/telemediation-convergent`, state at `/var/lib/telemediation-convergent/state.sqlite3`, and private configuration at `/etc/telemediation-convergent/runtime.env`. Services run as `tmc`, not root. Paths, database and unit names are independent of earlier software.
+Source is installed at `/opt/telemediation-convergent`, state at `/var/lib/telemediation-convergent/state.sqlite3`, and private configuration at `/etc/telemediation-convergent/runtime.env`. Services run as `tmc`, not root. The application uses dedicated paths, database files and service names.
 
 The installer refuses to overwrite an existing installation. This is not an upgrade procedure; do not delete existing directories to force it.
 

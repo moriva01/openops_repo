@@ -8,7 +8,7 @@ Browser smoke checks passed in isolated headless Chrome: operator login, live da
 
 ## Real two-node incident
 
-- Monitored Linux VM: 192.168.1.202, host ID `tmc-lab-01`.
+- Monitored Linux VM: 192.168.1.202. Runtime host identity is omitted from this public validation record; `tmc-lab-01` is the neutral deployment example.
 - Receiver/portal: Windows 192.168.1.17:8096, independent PostgreSQL application database.
 - Zetaris: `openops_pg.monitor_samples`, read-only source account. Latest VM samples retrieved successfully via Zetaris UI-proxy SQL.
 - User disabled TeleMediation VOICE output and generated usage records. Monitor observed two pending voice records, sustained for the configured 60-second opening duration.
@@ -22,3 +22,4 @@ Browser smoke checks passed in isolated headless Chrome: operator login, live da
 
 ## Limits
 
+This validates one monitor and one real incident, not production reliability or a complete operations platform. Dashboard charts read PostgreSQL directly; monitor evaluation retrieves through Zetaris. Meterless investigation, incident correlation, notifications, multi-host operation and broader monitor management remain future work. No AI claim is made for the deterministic alert evaluator.

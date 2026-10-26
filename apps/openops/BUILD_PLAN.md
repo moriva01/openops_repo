@@ -1,70 +1,41 @@
-# OpenOps Evidence — agreed product direction
+# OpenOps Evidence — build plan
 
-26 October 2026. User approved proceeding with the product direction. This is a build specification, not a claim of completed features.
+## Product
 
-## Product and buyer
+An original operations platform for small IT teams and managed service providers. It collects host/application telemetry, evaluates monitors, manages alert lifecycles and verifies recovery. The commercial hypothesis is reduced incident investigation time and must be validated with operators.
 
-An original operations platform for small IT operations teams and managed service providers. Collect host and application telemetry, configure monitors, manage incident lifecycles, investigate failures with evidence and verify recovery. The initial commercial hypothesis is reduced investigation time; validate it with operators rather than claiming established demand.
+## Implemented foundation
 
-
-## Demo application: job-processing service
-
-A small application accepts synthetic jobs, processes them with a worker, and calls a separate dependency endpoint. It reports queue depth, completed/failed jobs, processing latency, worker heartbeat and dependency health. Host measurements are real and labelled separately from synthetic workload data.
-
-Primary incident: stop the dependency through a documented lab-only fault control. Worker failures increase, throughput drops, backlog grows and latency rises. Record the intervention timestamp as evaluation ground truth, withheld from investigator context. The investigator must find failure evidence and dependency relationships, not read the answer from a scenario label.
-
-Recovery: restore the dependency, verify successful probes, resumed throughput and draining backlog. Resolving the dependency alert does not immediately resolve backlog-related alerts.
-
-## Three evaluation cases
-
-1. Dependency outage: correct suspected cause supported by service probes and worker errors.
-2. Distractor: CPU spike on an unrelated service alongside a dependency outage; no false CPU attribution to the affected application.
-3. Insufficient evidence: missing dependency observations; explicitly report uncertainty and propose a specific next check.
-
-For each record detection time, investigation time, model calls, cited-source validity, agreement with withheld ground truth and recovery-verification outcome. Maintain a rules-only baseline for comparison. Do not invent percentage improvements.
+- TeleMediation Convergent: synthetic voice, messaging and data usage, normalization, routing and output portals.
+- Independent Linux collector with real host metrics and a bounded durable spool.
+- Authenticated ingestion into application PostgreSQL.
+- Read-only PostgreSQL view registered in Zetaris.
+- Deterministic monitoring through Zetaris with evidence-bearing alert transitions.
+- English portal for charts, monitor configuration, acknowledgement and history.
+- A real two-machine blocked-output/recovery test; see VALIDATION.md.
 
 ## Deployment
 
-- Monitoring node: current Windows host, Docker Desktop, working Zetaris stack; separate application PostgreSQL database, API, scheduler and portal; native Nightshift runtime.
-- Budget host memory across Docker and VM; the existing 28 GB physical RAM is shared. No assumption of a local GPU.
+Machine A runs the application and collector as unprivileged systemd services. Machine B runs Docker Desktop, the monitoring stack and Zetaris. Nightshift is installed separately as the planned AI provider. Model execution can use hosted NVIDIA endpoints without a local GPU.
 
-## Data architecture
+Machine names and IDs are neutral deployment examples: telemediation-01 / tmc-lab-01. Use isolated lab data and documented interfaces.
 
-Collector sends authenticated, bounded batches to ingestion API; buffer briefly during outages and deduplicate retries by observation ID. PostgreSQL persists normalized telemetry and separate configuration/history tables. Do not use Zetaris's internal metastore or audit databases as application storage.
+## Next implementation stages
 
-Register application data sources in Zetaris. Agent retrieval tools use Zetaris to correlate telemetry, app dependencies, rule definitions and incident history. Verify supported SQL/source interfaces before producing registration scripts. Portal and deterministic alert evaluation may access the application database directly; document which paths actually use Zetaris.
+1. Implement Meterless World Model services for entities, observations, relationships and grounded context.
+2. Integrate Nightshift through an injected model adapter.
+3. Add bounded read-only investigation and one critique/revision step.
+4. Validate citations and uncertainty; distinguish a supported hypothesis from proven causation.
+5. Add webhook delivery, retries and delivery history.
+6. Evaluate a known incident, a distractor and insufficient evidence; measure outcomes rather than inventing improvements.
+7. Complete clean-setup verification, demo video, slides and submission.
 
-Nightshift is the primary model provider. World Model Engine implements stable entity IDs, append-only observations with provenance, idempotent/resumable ingestion and a structured bounded context builder. Investigator and evaluator consume this context. Engine status and implemented/omitted reference features are explicit in each run manifest.
+## Boundaries
 
-## Required product workflow
+No automatic production remediation. Lab fault controls affect only this application. Proposed monitor changes require operator review. No arbitrary model-generated shell execution.
 
-1. Register a host and application; show last-seen and telemetry freshness.
-2. Configure a monitor with threshold, duration, severity, recovery condition and destination.
-3. Open/deduplicate alerts, acknowledge them, retain transition history, resolve only on recovery evidence. Never confuse disabled monitor with resolved alert.
-4. Group related alerts into an incident with explainable grouping evidence.
-5. Investigator chooses read-only tools based on evidence gaps, maximum 4 tool steps. Collect bounded time ranges and at most 100 records per tool.
-6. Evaluator checks citations, alternatives and uncertainty; allow at most one revision. A valid citation is necessary but not sufficient to establish causation.
-7. Render timeline, observations, suspected cause, alternatives, missing facts and recommended checks.
-8. Deliver a webhook with timeout, deduplication, bounded retries and delivery history. SMTP email is next; SMS and advanced escalation are deferred until the core works.
-9. Verify recovery and show whether the incident's user-visible symptoms cleared.
+Sponsor integrations must have observed evidence. A local fixture mode cannot establish live integration. Keep logs free of credentials and record which data path/model actually handled the work.
 
-No automatic production remediation. Fault injection controls act only on this project's lab application. Model-generated monitor definitions are drafts requiring operator review, not arbitrary executable commands.
+## Submission
 
-## Portal views
-
-
-## Implementation order
-
-1. Finish Nightshift connection, model discovery and real response test.
-2. Confirm monitored VM and access; inspect OS/network without modifying existing services.
-3. Build original app, collector, ingestion API and application DB; prove two-node telemetry.
-4. Build monitor lifecycle and portal; demonstrate fault, alert and recovery without model dependency.
-5. Connect Zetaris retrieval and World Model; implement bounded investigation/evaluation through Nightshift.
-6. Add webhook and measured three-case evaluation.
-7. Fresh-setup verification, labelled offline sample mode, public-source review, 1–4 minute video, required slides and submission.
-
-Deadline: 27 October 2026 at 18:45 America/Bogota. Reserve packaging time. If scope must shrink, keep one complete observed incident workflow and remove secondary features first.
-
-## Status
-
-Zetaris: all 9 official verification checks passed in the previous setup turn. Nightshift CLI: installed; local runtime connection refused during this inspection. Application, collector, portal, engine, adapters and evaluations: not implemented yet. Team creation: confirmed by user. This plan supersedes the earlier report-only scope in PROJECT_BRIEF.md.
+Deadline: October 27, 2026, 23:45 UTC / 18:45 America/Bogota. Reserve packaging time. See the repository implementation-status guide for current capabilities; this plan includes future work.

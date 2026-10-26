@@ -37,5 +37,6 @@ Real host telemetry; synthetic voice/SMS/data mediation; durable collector spool
 
 ## Excluded material
 
+The repository does not include real credentials, runtime databases, production histories, `.local` files, Zetaris binaries/JDBC drivers or Nightshift installers. Obtain Zetaris and Meterless from their providers. Build our application packages from source.
 
 Consolidating this source does not change running deployment paths. Read the migration guide before operating the existing deployment from this checkout.

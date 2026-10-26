@@ -20,3 +20,4 @@ Nightshift 1.2.7 answered a separate request using NVIDIA `nvidia/nemotron-3.5-b
 
 Remaining work: implement Meterless World Model Engine, investigation and critique through Nightshift, incident correlation, webhooks/email/SMS, escalation, multiple hosts, RBAC, user authentication, TLS and production hardening. The platform does not automatically repair application services.
 
+The product name and commercial assumptions remain proposals. No production telecom-interface compatibility is claimed.
