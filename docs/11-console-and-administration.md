@@ -39,11 +39,13 @@ Levels are `info`, `warning`, `minor`, `major`, `critical`. Above thresholds str
 - **Monitored hosts:** register a stable collector ID, display name, IP/DNS address and optional client. Issue or rotate an ingestion token. Configure collector identity, destination and token on that server. Registration does not install software or configure firewalls. Retire monitors before retiring a host.
 - **Clients:** manage customer/organization labels associated with monitored hosts.
 - **Ticket servers:** name a service and set its browse base URL. For example, `https://example.atlassian.net/browse` with `OPS-123` produces `/browse/OPS-123`. Disabled entries disappear from new acknowledgements; stored links remain.
-- **External connectors:** configure webhook, generic SMS HTTP gateway or SMTP email delivery. New connectors start disabled. Enable after configuring the intended destination. Retirement disables delivery and preserves history.
+- **External connectors:** configure outgoing webhook, Microsoft Teams, generic SMS HTTP gateway or SMTP email delivery using named fields. New connectors start disabled. Enable after configuring the intended destination. The Test button sends a marked connection notification. Retirement disables delivery and preserves history. See [outgoing webhooks and Teams](13-outgoing-webhooks-and-teams.md).
 
 ## Connector contracts
 
 Enabled connectors receive new opening, severity-change and recovery events. Enabling a connector does not replay historical events. The durable outbox allows five attempts with bounded exponential delay. Delivery is at least once; HTTP receivers should deduplicate `Idempotency-Key: openops-delivery-<delivery-id>`. Redirects are rejected. Disabling a connector cancels queued deliveries when claimed; in-flight requests can finish.
+
+The following JSON examples describe API configuration; the console provides individual fields. Endpoint URLs are encrypted and omitted from responses. A blank URL while editing preserves its saved value.
 
 Webhook configuration:
 

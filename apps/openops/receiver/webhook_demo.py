@@ -38,7 +38,7 @@ def accept(db, key, payload):
         raise ValueError('Idempotency-Key required')
     if not isinstance(payload, dict) or payload.get('schema') != 'openops.notification.v1':
         raise ValueError('Expected openops.notification.v1')
-    if payload.get('action') not in ('opened', 'resolved', 'severity_changed'):
+    if payload.get('action') not in ('opened', 'resolved', 'severity_changed', 'test'):
         raise ValueError('Unsupported action')
     if type(payload.get('alert_id')) is not int or not isinstance(payload.get('evidence'), dict):
         raise ValueError('Alert identity and evidence required')

@@ -32,6 +32,8 @@ See [console and administration](../../docs/11-console-and-administration.md) fo
 
 For an authenticated local webhook destination and a real opening/recovery demonstration, follow [the webhook circuit guide](../../docs/12-webhook-circuit-demo.md). It is optional and runs separately from the monitoring receiver.
 
+Configure other applications and Microsoft Teams directly in **Admin → External connectors**. Named fields, encrypted endpoint storage and a **Test** action are available. See [outgoing webhooks and Teams](../../docs/13-outgoing-webhooks-and-teams.md).
+
 The generated `.local/collector-destination.env` contains only the receiver endpoint and a separate ingestion token. Transfer it privately to the monitored VM using SCP; do not paste it into chat. Install it root-readable on the VM as `/etc/tmc-collector/destination.env`, then add a systemd drop-in:
 
 ```ini

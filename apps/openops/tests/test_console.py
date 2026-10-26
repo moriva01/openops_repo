@@ -104,6 +104,34 @@ class ConsoleTests(unittest.TestCase):
         issued=access.change(self.db,self.admin,'tokens',{'name':'Expired fixture','user_id':uid,'days':1})
         self.db.execute("UPDATE user_tokens SET expires_at=now()-interval '1 second'")
         self.assertIsNone(access.principal(self.db,bearer=issued['token']))
+    def test_signed_url_is_private_and_survives_edit(self):
+        endpoint='https://example.test/workflow?sig=synthetic-private-signature'
+        c=access.change(self.db,self.admin,'connectors',{'name':'Teams','kind':'teams','config':{'url':endpoint}})
+        stored=self.db.execute('SELECT * FROM connectors WHERE id=%s',(c['id'],)).fetchone()
+        self.assertNotIn('url',stored['config'])
+        self.assertEqual(access.cipher().decrypt(stored['encrypted_url'].encode()).decode(),endpoint)
+        self.assertNotIn(endpoint,str(access.admin_data(self.db)))
+        access.change(self.db,self.admin,'connectors',{'id':c['id'],'name':'Renamed Teams','kind':'teams','config':{}})
+        updated=self.db.execute('SELECT encrypted_url FROM connectors WHERE id=%s',(c['id'],)).fetchone()
+        self.assertEqual(updated['encrypted_url'],stored['encrypted_url'])
+
+    def test_legacy_endpoint_migration_keeps_destination_without_public_url(self):
+        self.db.execute("INSERT INTO connectors(name,kind,config) VALUES('Legacy','webhook',%s)",
+                        (psycopg.types.json.Jsonb({'url':'https://example.test/legacy?sig=fixture'}),))
+        access.initialize(self.db)
+        stored=self.db.execute("SELECT * FROM connectors WHERE name='Legacy'").fetchone()
+        self.assertNotIn('url',stored['config'])
+        self.assertEqual(access.cipher().decrypt(stored['encrypted_url'].encode()).decode(),'https://example.test/legacy?sig=fixture')
+
+    def test_admin_test_queues_only_a_marked_test(self):
+        c=access.change(self.db,self.admin,'connectors',{'name':'Teams','kind':'teams','enabled':True,'config':{'url':'https://example.test/workflow'}})
+        before=self.db.execute('SELECT count(*) n FROM alerts').fetchone()['n']
+        result=access.change(self.db,self.admin,'connectors',{'id':c['id'],'action':'test'})
+        job=self.db.execute('SELECT * FROM notification_deliveries WHERE id=%s',(result['delivery_id'],)).fetchone()
+        self.assertTrue(job['payload']['test'])
+        self.assertEqual(job['payload']['action'],'test')
+        self.assertEqual(self.db.execute('SELECT count(*) n FROM alerts').fetchone()['n'],before)
+
     def test_actual_local_webhook_delivery_payload_and_idempotency_header(self):
         received=[]
         class Sink(BaseHTTPRequestHandler):

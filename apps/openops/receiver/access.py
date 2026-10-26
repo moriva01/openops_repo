@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import secrets
+import uuid
 from urllib.parse import urlsplit
 from cryptography.fernet import Fernet
 from psycopg.rows import dict_row
@@ -25,6 +26,7 @@ CREATE TABLE IF NOT EXISTS managed_hosts(id text PRIMARY KEY,name text NOT NULL,
 CREATE TABLE IF NOT EXISTS ticket_servers(id serial PRIMARY KEY,name text NOT NULL,url text NOT NULL,enabled boolean DEFAULT true);
 CREATE TABLE IF NOT EXISTS connectors(id serial PRIMARY KEY,name text NOT NULL,kind text NOT NULL,enabled boolean DEFAULT false,
  config jsonb NOT NULL DEFAULT '{}',secret text NOT NULL DEFAULT '',created_at timestamptz DEFAULT now());
+ALTER TABLE connectors ADD COLUMN IF NOT EXISTS encrypted_url text NOT NULL DEFAULT '';
 CREATE TABLE IF NOT EXISTS system_activity(id bigserial PRIMARY KEY,happened_at timestamptz DEFAULT now(),actor text NOT NULL,action text NOT NULL,detail jsonb NOT NULL);
 """
 
@@ -46,6 +48,13 @@ def audit(db,actor,action,detail):
 def initialize(db):
     db.execute(DDL)
     db.execute("SELECT pg_advisory_xact_lock(809602)")
+    # Migrate endpoint credentials out of readable JSON without changing destinations.
+    with db.cursor(row_factory=dict_row) as cursor:
+        for item in cursor.execute("SELECT id,config FROM connectors WHERE config ? 'url'").fetchall():
+            config=dict(item['config'])
+            endpoint=config.pop('url')
+            cursor.execute("UPDATE connectors SET config=%s,encrypted_url=%s WHERE id=%s",
+                           (Jsonb(config),cipher().encrypt(endpoint.encode()).decode(),item['id']))
     if not db.execute("SELECT 1 FROM users LIMIT 1").fetchone():
         password=secrets.token_urlsafe(20)
         db.execute("INSERT INTO users(username,password_hash,role) VALUES('admin',%s,'admin')",(password_hash(password),))
@@ -92,7 +101,7 @@ def text(value,maximum=120):
     return value.strip()
 
 def url(value):
-    value=text(value,1000);parsed=urlsplit(value)
+    value=text(value,4096);parsed=urlsplit(value)
     if parsed.scheme not in ('http','https') or not parsed.hostname or parsed.username or parsed.password:raise ValueError('Use an HTTP(S) URL without embedded credentials')
     return value
 
@@ -107,7 +116,7 @@ def admin_data(db):
       'clients':db.execute('SELECT * FROM clients ORDER BY id').fetchall(),
       'hosts':db.execute('SELECT id,name,client_id,address,enabled FROM managed_hosts ORDER BY name').fetchall(),
       'ticket_servers':db.execute('SELECT * FROM ticket_servers ORDER BY id').fetchall(),
-      'connectors':db.execute("SELECT id,name,kind,enabled,config,(secret<>'') AS has_secret FROM connectors ORDER BY id").fetchall()}
+      'connectors':db.execute("SELECT id,name,kind,enabled,config,(secret<>'') AS has_secret,(encrypted_url<>'') AS has_url FROM connectors ORDER BY id").fetchall()}
 
 def change(db,user,resource,data):
     require(user,'admin');actor=user['username'];result={}
@@ -170,13 +179,34 @@ def change(db,user,resource,data):
         else:ident=db.execute('INSERT INTO ticket_servers(name,url,enabled) VALUES(%s,%s,%s) RETURNING id',(text(data['name']),url(data['url']),bool(data.get('enabled',True)))).fetchone()['id']
     elif resource=='connectors':
         if action=='delete':db.execute('UPDATE connectors SET enabled=false WHERE id=%s',(int(ident),))
+        elif action=='test':
+            current=db.execute('SELECT id,name,enabled FROM connectors WHERE id=%s',(int(ident),)).fetchone()
+            if not current or not current['enabled']:raise ValueError('Enable the connector before testing')
+            nonce=uuid.uuid4().hex
+            payload={'schema':'openops.notification.v1','event_id':'test-'+nonce,'alert_id':0,
+                     'action':'test','severity':'info','monitor':'Connector test - no active incident',
+                     'host_name':'OpenOps','test':True,'evidence':{}}
+            delivery=db.execute('INSERT INTO notification_deliveries(history_id,connector_id,connector_name,payload) VALUES(%s,%s,%s,%s) RETURNING id',
+                (-int(nonce[:14],16),current['id'],current['name'],Jsonb(payload))).fetchone()['id']
+            result['delivery_id']=delivery
         else:
             kind=data['kind'];config=data.get('config',{});enabled=data.get('enabled',False)
-            if kind not in ('webhook','sms','email') or not isinstance(config,dict) or type(enabled) is not bool:raise ValueError('Invalid connector')
-            allowed={'url','to'} if kind in ('webhook','sms') else {'host','port','username','from','to','starttls'}
+            if kind not in ('webhook','teams','sms','email') or not isinstance(config,dict) or type(enabled) is not bool:raise ValueError('Invalid connector')
+            allowed={'url','to'} if kind in ('webhook','teams','sms') else {'host','port','username','from','to','starttls'}
             if set(config)-allowed:raise ValueError('Unknown configuration key; put credentials in the secret field')
-            if kind in ('webhook','sms'):
-                config['url']=url(config.get('url'))
+            current=db.execute('SELECT * FROM connectors WHERE id=%s',(int(ident),)).fetchone() if ident else None
+            if ident and not current:raise ValueError('Unknown connector')
+            encrypted_url=''
+            if kind in ('webhook','teams','sms'):
+                supplied=config.pop('url',None)
+                if supplied:
+                    endpoint=url(supplied)
+                    encrypted_url=cipher().encrypt(endpoint.encode()).decode()
+                elif current and current['encrypted_url']:
+                    encrypted_url=current['encrypted_url']
+                    endpoint=cipher().decrypt(encrypted_url.encode()).decode()
+                else:raise ValueError('Webhook URL required')
+                if kind=='teams' and urlsplit(endpoint).scheme!='https':raise ValueError('Teams requires an HTTPS webhook URL')
                 if kind=='sms':config['to']=text(config.get('to'),80)
             else:
                 for k in ('host','from','to'):config[k]=text(config.get(k),253)
@@ -185,8 +215,8 @@ def change(db,user,resource,data):
                 config['starttls']=True
             # Connector secrets are encrypted; never returned in configuration responses.
             secret=cipher().encrypt(text(data['secret'],4096).encode()).decode() if data.get('secret') else ''
-            if ident:db.execute("UPDATE connectors SET name=%s,kind=%s,enabled=%s,config=%s,secret=CASE WHEN %s='' THEN secret ELSE %s END WHERE id=%s",(text(data['name']),kind,enabled,Jsonb(config),secret,secret,int(ident)))
-            else:ident=db.execute('INSERT INTO connectors(name,kind,enabled,config,secret) VALUES(%s,%s,%s,%s,%s) RETURNING id',(text(data['name']),kind,enabled,Jsonb(config),secret)).fetchone()['id']
+            if ident:db.execute("UPDATE connectors SET name=%s,kind=%s,enabled=%s,config=%s,encrypted_url=%s,secret=CASE WHEN %s='' THEN secret ELSE %s END WHERE id=%s",(text(data['name']),kind,enabled,Jsonb(config),encrypted_url,secret,secret,int(ident)))
+            else:ident=db.execute('INSERT INTO connectors(name,kind,enabled,config,encrypted_url,secret) VALUES(%s,%s,%s,%s,%s,%s) RETURNING id',(text(data['name']),kind,enabled,Jsonb(config),encrypted_url,secret)).fetchone()['id']
     else:raise ValueError('Unknown administration resource')
     audit(db,actor,'admin.'+resource+'.'+action,{'id':ident})
     return {'id':ident,**result}

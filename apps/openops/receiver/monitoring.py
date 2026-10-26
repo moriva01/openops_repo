@@ -224,7 +224,7 @@ def dashboard(db,host=None):
       'hosts':hosts,'latest':latest,'source':db.execute('SELECT * FROM monitor_control WHERE singleton').fetchone(),
       'metrics':METRICS,'severities':SEVERITIES,'ticket_servers':db.execute('SELECT * FROM ticket_servers WHERE enabled ORDER BY name').fetchall(),
       'activity':db.execute('SELECT * FROM system_activity ORDER BY id DESC LIMIT 200').fetchall(),
-      'deliveries':db.execute('SELECT id,connector_name,status,attempts,last_error,created_at,finished_at FROM notification_deliveries ORDER BY id DESC LIMIT 50').fetchall()}
+      'deliveries':db.execute('SELECT id,connector_name,status,attempts,last_error,response_status,created_at,finished_at FROM notification_deliveries ORDER BY id DESC LIMIT 50').fetchall()}
 
 
 def loop(connection, logger):
