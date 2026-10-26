@@ -1,40 +1,41 @@
-# OpenOps — repositorio del laboratorio de operaciones
+# OpenOps — operations lab repository
 
-Código original de **TeleMediation Convergent**, su recolector Linux y **OpenOps**, la plataforma de monitoreo. Documentación del estado implementado al 26 de octubre de 2026. Las interfaces de los aplicativos están en inglés.
+Original source for **TeleMediation Convergent**, its Linux collector, and the **OpenOps** monitoring platform. This repository documents the implementation as of October 26, 2026. Documentation, application interfaces, examples and installation instructions are in English.
 
-Dos máquinas independientes: una ejecuta la aplicación de telecomunicaciones sintética; otra recibe su telemetría, la almacena, la consulta mediante Zetaris y evalúa monitores. Una VM es una forma de desplegar la primera máquina, no un requisito de la arquitectura.
+The system uses two independent machines: one runs a synthetic telecom mediation application; the other receives and stores telemetry, queries it through Zetaris, and evaluates monitors. A VM is one deployment option for the first machine, not an architectural requirement.
 
-## Comenzar
+## Start here
 
-1. [Estado actual y límites](docs/00-estado.md).
-2. [Arquitectura completa](docs/01-arquitectura.md).
-3. [Requisitos, puertos y firewall](docs/02-infraestructura.md).
-4. [Instalar la máquina monitoreada](docs/03-instalacion-monitoreada.md).
-5. [Instalar el centro de monitoreo Windows](docs/04-instalacion-centro.md).
-6. [Conectar las dos máquinas y Zetaris](docs/05-conexiones-credenciales.md).
-7. [Manual de uso](docs/06-uso.md).
-8. [Pruebas y diagnóstico](docs/07-pruebas-diagnostico.md).
-9. [Operación, respaldo y migración de la instalación existente](docs/08-operacion-migracion.md).
-10. [Validación del repositorio consolidado](docs/09-validacion-repositorio.md).
+1. [Implementation status and limitations](docs/00-status.md).
+2. [System architecture](docs/01-architecture.md).
+3. [Requirements, ports and firewall](docs/02-infrastructure.md).
+4. [Install the monitored machine](docs/03-monitored-machine-installation.md).
+5. [Install the Windows monitoring center](docs/04-monitoring-center-installation.md).
+6. [Connections, credentials and queries](docs/05-connections-and-credentials.md).
+7. [User guide](docs/06-user-guide.md).
+8. [Acceptance tests and troubleshooting](docs/07-testing-and-troubleshooting.md).
+9. [Operations, backups and deployment migration](docs/08-operations-and-migration.md).
+10. [Repository validation](docs/09-repository-validation.md).
 
-## Contenido
+## Repository layout
 
 ```text
 apps/
-  telemediation-convergent/  Aplicación, recolector, instaladores y empaquetadores
-  openops/                  Receptor, PostgreSQL Compose, monitor, portal, adaptador Zetaris
-docs/                       Guías de las dos máquinas
+  telemediation-convergent/  Application, collector, installers and package builders
+  openops/                  Receiver, PostgreSQL Compose, monitor, portal, Zetaris adapter
+docs/                       Deployment and operations guides for both machines
+tools/                      Repository checks and setup-script tests
 ```
 
-Cada aplicativo conserva su README técnico, pruebas y scripts. Los archivos de planificación dentro de `apps/openops` son antecedentes; ante diferencias, prevalecen `docs/00-estado.md` y el código actual. `apps/openops/VALIDATION.md` registra la prueba real de alerta.
+Each application retains its technical README, scripts and tests. Planning files in `apps/openops` describe earlier proposals; where they differ, `docs/00-status.md` and the implementation take precedence. `apps/openops/VALIDATION.md` records the real incident test.
 
-## Qué funciona
+## Working features
 
-Telemetría real de servidor, portal de mediación sintética con voz/SMS/datos, spool durable, receptor autenticado, PostgreSQL propio, fuente de solo lectura en Zetaris, monitor configurable, gráficas y ciclo de alerta con reconocimiento y recuperación automática.
+Real host telemetry; synthetic voice/SMS/data mediation; durable collector spool; authenticated ingestion; independent PostgreSQL storage; a read-only Zetaris datasource; a configurable monitor; charts; and an alert lifecycle with acknowledgement and automatic recovery verification.
 
-**No hay todavía investigación de incidentes con IA, correlación, notificaciones o remediación automática.** Nightshift/NVIDIA fue instalado y probado separadamente en el laboratorio; no está conectado al código de OpenOps. No confundir una alerta resuelta con una reparación ejecutada por el sistema.
+**AI investigation, incident correlation, notifications and automatic remediation are not implemented yet.** Nightshift/NVIDIA was installed and tested separately in the lab; OpenOps does not call it yet. A resolved alert does not mean the platform performed a repair.
 
-## Qué no se incluye
+## Excluded material
 
 
-Esta consolidación del código no cambia las rutas de los servicios que ya están ejecutándose. Consulte la guía de migración antes de operar el despliegue actual desde esta carpeta.
+Consolidating this source does not change running deployment paths. Read the migration guide before operating the existing deployment from this checkout.
