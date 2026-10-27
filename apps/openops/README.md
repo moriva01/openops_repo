@@ -22,6 +22,8 @@ Generated `.env` and `.local/` contain credentials and are gitignored and exclud
 
 ## Portal and monitor lifecycle
 
+For planned restarts, start with the [Windows restart order and persistence checks](../../docs/08-operations-and-migration.md#windows-restart-order). Wait for Zetaris readiness before restarting the receiver; avoid rerunning Zetaris one-shot setup jobs during ordinary restarts.
+
 Open http://192.168.1.17:8096. Run `python scripts/prepare_portal.py` after receiver readiness to export the private `.local/admin-access.txt` note. Sign in with the generated admin password. Only admin exists initially; create other users through Admin.
 
 Overview, Monitors, Alerts, Activity and Admin are separate pages. Host selection supports multiple collectors. Admin manages users, user-owned tokens, hosts, clients, ticket servers and opt-in connectors. Roles are enforced by API: admin controls everything; manager operates monitors and alerts without Admin; operator uses Overview, Alerts and Activity.

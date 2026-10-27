@@ -53,6 +53,51 @@ Follow provider procedures for their volumes and settings, especially Zetaris `.
 - If A or the collector stops, there are no new observations. The monitor reports no-data instead of inventing recovery.
 - Monitor and alert state persists. Timers use observation timestamps and freshness bounds.
 
+### Windows restart order
+
+Keep Docker Desktop running and leave Nightshift open with its configured provider enabled. The monitored Linux machine does not need to restart.
+
+1. In PowerShell, change to your extracted `zetaris-platform` directory and restart only its long-running services:
+
+   ```powershell
+   docker compose restart postgres driver api ui
+   docker compose ps --all
+   & "$env:ProgramFiles\Git\bin\bash.exe" ./verify.sh
+   ```
+
+   Wait for PostgreSQL, driver, API and UI to become healthy and for login and SQL checks to pass. Repeat verification after startup settles. Avoid an unqualified `docker compose restart` here: it also reruns the one-shot `init` and `bootstrap` jobs without waiting for dependencies to become ready.
+
+2. If a previous full-stack restart left `bootstrap` at exit code 1 with login `HTTP 000`, first confirm that the platform login and SQL checks now pass. Then rerun only that job and verify again:
+
+   ```powershell
+   docker compose restart bootstrap
+   & "$env:ProgramFiles\Git\bin\bash.exe" ./verify.sh
+   ```
+
+   Allow bootstrap to finish before repeating verification. In the reinstall test, this recovered all nine checks. Do not change passwords based only on `HTTP 000`; inspect logs if the job fails again.
+
+3. Change to this repository's `apps/openops` directory. Restart the OpenOps database, wait for its health check to pass, and then restart the receiver:
+
+   ```powershell
+   docker compose restart db
+   docker compose ps
+   ```
+
+   Once `db` is healthy:
+
+   ```powershell
+   docker compose restart receiver
+   docker compose logs --tail 20 receiver
+   ```
+
+   Check for a new `monitor.evaluated` entry with `source: zetaris` and `status: ok`, plus continuing `batch.committed` entries. If only Zetaris was restarted, restarting `db` is unnecessary; restart `receiver` after Zetaris is ready.
+
+4. Refresh the OpenOps portal and sign in again if required. Confirm that users, clients, hosts, monitors, ticket servers, connectors, alert history and investigation reports remain. Confirm that charts receive fresh observations, then test an alert opening and recovery with the configured notification connector.
+
+During the clean-install restart test, ingestion continued but Zetaris evaluations remained in `zetaris_HTTPError` until the receiver restarted. Two subsequent evaluations returned `ok`. The exact cause was not established; this procedure is a verified manual recovery, not proof of automatic reconnection.
+
+Ordinary restarts retain the driver's `openops_default` attachment. If the driver was recreated instead, restore that attachment using `scripts/start_monitoring.ps1` or the documented network connection procedure. Never use `docker compose down -v` for a restart: it deletes persistent volumes.
+
 ## Credential rotation
 
 Rotation is not automated. Update both ends of a credential and restart/recreate affected consumers without displaying secrets. Editing a PostgreSQL password in `.env` alone does not rotate an existing role; first change the role deliberately in PostgreSQL. A datasource password must also be updated in Zetaris. Replace compromised keys rather than only removing their file copies.
